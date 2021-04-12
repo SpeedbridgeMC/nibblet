@@ -2,10 +2,10 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Provides methods to read and write NBT binaries.
@@ -205,6 +205,72 @@ public final class TagIO {
             break;
         default:
             throw new InternalError("Unhandled type " + type + "!");
+        }
+    }
+
+    /**
+     * Deserializes an NBT structure from binary data.
+     * @param in input stream
+     * @return {@linkplain Result read result}
+     * @throws MalformedTagException if the tag data is malformed
+     * @throws IOException if an I/O error occurs
+     */
+    public static @NotNull Result read(@NotNull InputStream in) throws IOException {
+        return read((DataInput) new DataInputStream(in));
+    }
+
+    private static final class UncloseableInputStream extends FilterInputStream {
+        public UncloseableInputStream(InputStream in) {
+            super(in);
+        }
+
+        @Override
+        public void close() { }
+    }
+
+    /**
+     * Deserializes an NBT structure from gzipped binary data.
+     * @param in input stream
+     * @return {@linkplain Result read result}
+     * @throws MalformedTagException if the tag data is malformed
+     * @throws IOException if an I/O error occurs
+     */
+    public static @NotNull Result readCompressed(@NotNull InputStream in) throws IOException {
+        try (GZIPInputStream gis = new GZIPInputStream(new UncloseableInputStream(in))) {
+            return read(gis);
+        }
+    }
+
+    /**
+     * Serializes an NBT structure into binary data.
+     * @param rootName root tag name
+     * @param rootTag root tag
+     * @param out output stream
+     * @throws IOException if an I/O error occurs
+     */
+    public static void write(@NotNull String rootName, @NotNull CompoundTag rootTag, @NotNull OutputStream out) throws IOException {
+        write(rootName, rootTag, (DataOutput) new DataOutputStream(out));
+    }
+
+    private static final class UncloseableOutputStream extends FilterOutputStream {
+        public UncloseableOutputStream(OutputStream out) {
+            super(out);
+        }
+
+        @Override
+        public void close() { }
+    }
+
+    /**
+     * Serializes an NBT structure into gzipped binary data.
+     * @param rootName root tag name
+     * @param rootTag root tag
+     * @param out output stream
+     * @throws IOException if an I/O error occurs
+     */
+    public static void writeCompressed(@NotNull String rootName, @NotNull CompoundTag rootTag, @NotNull OutputStream out) throws IOException {
+        try (GZIPOutputStream gos = new GZIPOutputStream(new UncloseableOutputStream(out))) {
+            write(rootName, rootTag, gos);
         }
     }
 }

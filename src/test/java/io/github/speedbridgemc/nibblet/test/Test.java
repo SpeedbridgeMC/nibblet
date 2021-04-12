@@ -2,6 +2,7 @@ package io.github.speedbridgemc.nibblet.test;
 
 import io.github.speedbridgemc.nibblet.*;
 
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,8 +33,7 @@ public final class Test {
                 .build();
 
         Path path = Paths.get(".", "test.nbt").toAbsolutePath().normalize();
-        try (OutputStream os = Files.newOutputStream(path);
-             DataOutputStream out = new DataOutputStream(os)) {
+        try (OutputStream out = Files.newOutputStream(path)) {
             TagIO.write("test_root", tag, out);
         } catch (IOException e) {
             System.err.println("Failed to write to \"" + path + "\"!");
