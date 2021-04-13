@@ -62,8 +62,7 @@ public final class TagWriter implements Closeable {
             switch (mode) {
             case ROOT_LIST:
                 out.write(listType.id());
-                // root list has unspecified size. it _does_ have an empty name, though
-                streamHandler.writeUTFLength(out, 0);
+                // root list size is always 1, so it's unspecified
                 break;
             case LIST:
                 out.write(listType.id());
@@ -133,7 +132,6 @@ public final class TagWriter implements Closeable {
     public @NotNull TagWriter name(@NotNull String name) throws IOException {
         switch (ctx.mode) {
         case ROOT_UNDETERMINED:
-            ctx = new Context(Mode.ROOT_COMPOUND, null);
         case ROOT_COMPOUND:
         case COMPOUND:
             deferredName = name;
@@ -156,7 +154,22 @@ public final class TagWriter implements Closeable {
     }
     
     private void value(@NotNull TagType type, @NotNull DeferredWrite write, int size) throws IOException {
+        boolean list = false;
         switch (ctx.mode) {
+        case ROOT_UNDETERMINED:
+            if (deferredName == null)
+                throw new MalformedTagException("Missing root tag name");
+            if (type == TagType.COMPOUND)
+                ctx = new Context(Mode.ROOT_COMPOUND, null);
+            else if (type == TagType.LIST) {
+                ctx = new Context(Mode.ROOT_LIST, null);
+                out.write(type.id());
+                string(deferredName);
+                deferredName = null;
+                list = true;
+                break;
+            } else
+                throw new MalformedTagException(type + " cannot be a root tag");
         case ROOT_COMPOUND:
             if (deferredName == null)
                 throw new MalformedTagException("Missing tag name");
@@ -176,16 +189,9 @@ public final class TagWriter implements Closeable {
                 write.write();
             });
             break;
-        case ROOT_UNDETERMINED:
-            ctx = new Context(Mode.ROOT_LIST, null);
         case ROOT_LIST:
         case LIST:
-            if (ctx.listType == TagType.END)
-                ctx.listType = type;
-            else if (ctx.listType != type)
-                throw new MalformedTagException("Tried to add " + type + " to list of " + ctx.listType);
-            ctx.write(write);
-            ctx.listSize += size;
+            list = true;
             break;
         case BYTE_ARRAY:
         case INT_ARRAY:
@@ -198,6 +204,14 @@ public final class TagWriter implements Closeable {
             break;
         default:
             throw new InternalError("Unhandled context mode " + ctx.mode);
+        }
+        if (list) {
+            if (ctx.listType == TagType.END)
+                ctx.listType = type;
+            else if (ctx.listType != type)
+                throw new MalformedTagException("Tried to add " + type + " to list of " + ctx.listType);
+            ctx.write(write);
+            ctx.listSize += size;
         }
     }
     

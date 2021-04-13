@@ -2,7 +2,6 @@ package io.github.speedbridgemc.nibblet;
 
 import io.github.speedbridgemc.nibblet.stream.StandardTagStreamHandler;
 import io.github.speedbridgemc.nibblet.stream.TagStreamHandler;
-import io.github.speedbridgemc.nibblet.stream.VarIntTagStreamHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -10,10 +9,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
 
+/**
+ * Represents common tag formats.
+ */
 public enum TagFormats implements TagStreamHandler {
+    /**
+     * The "classic" format used by Java Edition. Big-endian values.
+     */
     JAVA(new StandardTagStreamHandler(ByteOrder.BIG_ENDIAN)),
-    BEDROCK(new StandardTagStreamHandler(ByteOrder.LITTLE_ENDIAN)),
-    BEDROCK_NETWORK(new VarIntTagStreamHandler());
+    /**
+     * The format used by Bedrock Edition. Little-endian values.
+     */
+    BEDROCK(new StandardTagStreamHandler(ByteOrder.LITTLE_ENDIAN));
 
     private final @NotNull TagStreamHandler delegate;
 

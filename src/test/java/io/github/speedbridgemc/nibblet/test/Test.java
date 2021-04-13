@@ -30,7 +30,7 @@ public final class Test {
                             .add(ListTag.of(DoubleTag.of(2)))
                             .add(ListTag.of(StringTag.of("3")))
                             .build())
-                    .build(), out);
+                    .build(), TagFormats.JAVA, out);
         } catch (IOException e) {
             System.err.println("Failed to write to \"" + path + "\"!");
             e.printStackTrace();
@@ -80,7 +80,8 @@ public final class Test {
         Path pathSL = Paths.get(".", "test_stream_list.nbt").toAbsolutePath().normalize();
         try (OutputStream out = Files.newOutputStream(pathSL);
              TagWriter writer = new TagWriter(TagFormats.BEDROCK, out)) {
-            writer.beginList()
+            writer.name("")
+                    .beginList()
                     .value("a")
                     .value("b")
                     .value("c")

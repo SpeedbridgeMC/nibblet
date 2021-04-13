@@ -106,6 +106,12 @@ public final class TagReader implements Closeable {
         return ctx.itemType;
     }
 
+    public int listSize() throws IOException {
+        if (!ctx.isList)
+            throw new MalformedTagException("Not in a list or array");
+        return ctx.itemsRemaining;
+    }
+
     public boolean listHasNext() throws IOException {
         if (!ctx.isList)
             throw new MalformedTagException("Not in a list or array");
