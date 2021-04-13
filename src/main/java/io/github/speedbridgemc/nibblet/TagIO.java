@@ -223,7 +223,7 @@ public final class TagIO {
         writer.beginCompound();
         for (Map.Entry<String, Tag> entry : tag.entries()) {
             writer.name(entry.getKey());
-            writeSingle(writer, entry.getValue());
+            writeTag(writer, entry.getValue());
         }
         writer.endCompound();
     }
@@ -231,11 +231,11 @@ public final class TagIO {
     private static void writeList(@NotNull TagWriter writer, @NotNull ListTag tag) throws IOException {
         writer.beginList();
         for (Tag item : tag)
-            writeSingle(writer, item);
+            writeTag(writer, item);
         writer.endList();
     }
 
-    private static void writeSingle(@NotNull TagWriter writer, @NotNull Tag tag) throws IOException {
+    private static void writeTag(@NotNull TagWriter writer, @NotNull Tag tag) throws IOException {
         switch (tag.type()) {
         case BYTE:
             writer.value(((ByteTag) tag).value());
