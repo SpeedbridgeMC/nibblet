@@ -118,78 +118,50 @@ public class CompoundTag implements Tag {
 
     public byte getByte(@NotNull String name, byte defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value();
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().byteValue();
         return defaultValue;
     }
 
     public boolean getBoolean(@NotNull String name, boolean defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value() != 0;
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().byteValue() > 0;
         return defaultValue;
     }
 
     public short getShort(@NotNull String name, short defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value();
-        else if (tag instanceof ShortTag)
-            return ((ShortTag) tag).value();
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().shortValue();
         return defaultValue;
     }
 
     public int getInt(@NotNull String name, int defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value();
-        else if (tag instanceof ShortTag)
-            return ((ShortTag) tag).value();
-        else if (tag instanceof IntTag)
-            return ((IntTag) tag).value();
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().intValue();
         return defaultValue;
     }
 
     public long getLong(@NotNull String name, long defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value();
-        else if (tag instanceof ShortTag)
-            return ((ShortTag) tag).value();
-        else if (tag instanceof IntTag)
-            return ((IntTag) tag).value();
-        else if (tag instanceof LongTag)
-            return ((LongTag) tag).value();
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().longValue();
         return defaultValue;
     }
 
     public float getFloat(@NotNull String name, float defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value();
-        else if (tag instanceof ShortTag)
-            return ((ShortTag) tag).value();
-        else if (tag instanceof IntTag)
-            return ((IntTag) tag).value();
-        else if (tag instanceof FloatTag)
-            return ((FloatTag) tag).value();
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().floatValue();
         return defaultValue;
     }
 
     public double getDouble(@NotNull String name, double defaultValue) {
         Tag tag = get(name);
-        if (tag instanceof ByteTag)
-            return ((ByteTag) tag).value();
-        else if (tag instanceof ShortTag)
-            return ((ShortTag) tag).value();
-        else if (tag instanceof IntTag)
-            return ((IntTag) tag).value();
-        else if (tag instanceof LongTag)
-            return ((LongTag) tag).value();
-        else if (tag instanceof FloatTag)
-            return ((FloatTag) tag).value();
-        else if (tag instanceof DoubleTag)
-            return ((DoubleTag) tag).value();
+        if (tag instanceof NumberTag)
+            return ((NumberTag) tag).valueAsNumber().doubleValue();
         return defaultValue;
     }
 

@@ -2,7 +2,7 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class LongTag implements Tag {
+public final class LongTag implements NumberTag {
     private final long value;
 
     private LongTag(long value) {
@@ -14,6 +14,11 @@ public final class LongTag implements Tag {
     }
 
     public long value() {
+        return value;
+    }
+
+    @Override
+    public @NotNull Number valueAsNumber() {
         return value;
     }
 

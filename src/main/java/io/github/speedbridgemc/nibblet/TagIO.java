@@ -9,7 +9,10 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Provides methods to read and write NBT binaries.
+ *
+ * @deprecated TODO use TagReader/Writer
  */
+@Deprecated
 public final class TagIO {
     private TagIO() { }
 

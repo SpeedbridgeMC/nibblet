@@ -2,7 +2,7 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class ByteTag implements Tag {
+public final class ByteTag implements NumberTag {
     private final byte value;
 
     private ByteTag(byte value) {
@@ -14,6 +14,11 @@ public final class ByteTag implements Tag {
     }
 
     public byte value() {
+        return value;
+    }
+
+    @Override
+    public @NotNull Number valueAsNumber() {
         return value;
     }
 

@@ -44,6 +44,14 @@ public class ListTag implements Tag, Iterable<Tag> {
         return new Builder(initialCapacity);
     }
 
+    @SafeVarargs
+    public static <T extends Tag> @NotNull ListTag of(@NotNull T @NotNull ... values) {
+        Builder builder = builder(values.length);
+        for (T value : values)
+            builder.add(value);
+        return builder.build();
+    }
+
     public static <T extends Tag> @NotNull ListTag copyOf(@NotNull Iterable<@NotNull T> values) {
         Builder builder = builder();
         for (Tag v : values)
