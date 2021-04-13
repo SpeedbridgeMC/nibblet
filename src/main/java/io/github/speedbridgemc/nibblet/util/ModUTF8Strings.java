@@ -17,9 +17,8 @@ public final class ModUTF8Strings {
      * @param utflen length of input
      * @param dest destination buffer
      * @throws UTFDataFormatException if malformed input is received.
-     * @throws IOException if an I/O error occurs.
      */
-    public static void decode(byte @NotNull [] src, int utflen, @NotNull StringBuilder dest) throws IOException {
+    public static void decode(byte @NotNull [] src, int utflen, @NotNull StringBuilder dest) throws UTFDataFormatException {
         if (src.length < utflen)
             throw new IllegalArgumentException("Length of input is greater than input buffer's length");
 
@@ -64,13 +63,35 @@ public final class ModUTF8Strings {
         }
     }
 
+    private static final ThreadLocal<StringBuilder> TL_STRING_BUILDER = ThreadLocal.withInitial(StringBuilder::new);
+
+    private static @NotNull StringBuilder stringBuilder() {
+        StringBuilder sb = TL_STRING_BUILDER.get();
+        sb.setLength(0);
+        return sb;
+    }
+
+    /**
+     * Decodes a string encoded in the modified UTF-8 format.
+     * @param src input buffer
+     * @param utflen length of input
+     * @return decoded string
+     * @throws UTFDataFormatException if malformed input is received.
+     */
+    public static @NotNull String decode(byte @NotNull [] src, int utflen) throws UTFDataFormatException {
+        StringBuilder sb = stringBuilder();
+        decode(src, utflen, sb);
+        return sb.toString();
+    }
+
     private static final ThreadLocal<byte[]> TL_BUFFER = new ThreadLocal<>();
 
     private static byte @NotNull [] buffer(int length) {
         byte[] buf = TL_BUFFER.get();
-        if (buf == null || buf.length < length)
+        if (buf == null || buf.length < length) {
             buf = new byte[length];
-        TL_BUFFER.set(buf);
+            TL_BUFFER.set(buf);
+        }
         return buf;
     }
 

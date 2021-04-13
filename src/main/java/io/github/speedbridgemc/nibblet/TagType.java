@@ -90,16 +90,11 @@ public enum TagType {
      */
     LONG_ARRAY((byte) 12, "TAG_Long_Array"),
     /**
-     * A pseudo-tag type, used in {@link CompoundTag#contains(String, TagType)} to check if the compound tag contains
-     * a tag that encodes a number.
-     */
-    NUMBER((byte) 99, "TAG_Number"),
-    /**
      * A pseudo-tag type representing a root {@code TAG_List} (Bedrock Edition supports this).<p>
      * Notably, this list doesn't have its size nor its type specified -
      * it always contains a single {@code TAG_List}.
      */
-    ROOT_LIST(LIST.id(), LIST.toString());
+    ROOT_LIST((byte) 99, "TAG_Root_List");
 
     private final byte id;
     private final String name;
@@ -131,15 +126,7 @@ public enum TagType {
      * @return {@code true} if number, {@code false} otherwise
      */
     public boolean isNumber() {
-        return this == BYTE || this == SHORT || this == INT || this == LONG || this == FLOAT || this == DOUBLE || this == NUMBER;
-    }
-
-    /**
-     * Checks if this tag does not represent a "true" tag type.
-     * @return {@code} if pseudo-type, {@code false} otherwise
-     */
-    public boolean isPseudo() {
-        return this == NUMBER || this == ROOT_LIST;
+        return this == BYTE || this == SHORT || this == INT || this == LONG || this == FLOAT || this == DOUBLE;
     }
 
     private static final HashMap<Byte, TagType> MAP;
@@ -147,7 +134,7 @@ public enum TagType {
     static {
         MAP = new HashMap<>();
         for (TagType type : values()) {
-            if (type.isPseudo())
+            if (type == ROOT_LIST)
                 continue;
             MAP.put(type.id(), type);
         }

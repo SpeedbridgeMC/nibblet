@@ -200,9 +200,14 @@ public class CompoundTag implements Tag {
         Tag tag = get(name);
         if (tag == null)
             return false;
-        if (type == TagType.NUMBER)
-            return tag.type().isNumber();
         return tag.type() == type;
+    }
+
+    public boolean containsNumber(@NotNull String name) {
+        Tag tag = get(name);
+        if (tag == null)
+            return false;
+        return tag.type().isNumber();
     }
 
     public boolean containsName(@NotNull String name) {

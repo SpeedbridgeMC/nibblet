@@ -18,24 +18,9 @@ public final class TagWriter implements Closeable {
     private @Nullable String deferredName;
 
     private enum Mode {
-        ROOT_UNDETERMINED(TagType.END, TagType.END) {
-            @Override
-            public String toString() {
-                return "(undetermined root)";
-            }
-        },
-        ROOT_COMPOUND(TagType.COMPOUND, TagType.END) {
-            @Override
-            public String toString() {
-                return type + " (root)";
-            }
-        },
-        ROOT_LIST(TagType.ROOT_LIST, TagType.END) {
-            @Override
-            public String toString() {
-                return type + " (root)";
-            }
-        },
+        ROOT_UNDETERMINED(TagType.END, TagType.END),
+        ROOT_COMPOUND(TagType.COMPOUND, TagType.END),
+        ROOT_LIST(TagType.ROOT_LIST, TagType.END),
         COMPOUND(TagType.COMPOUND, TagType.END),
         LIST(TagType.LIST, TagType.END),
         BYTE_ARRAY(TagType.BYTE_ARRAY, TagType.BYTE),
@@ -48,11 +33,6 @@ public final class TagWriter implements Closeable {
         Mode(@NotNull TagType type, @NotNull TagType listType) {
             this.type = type;
             this.listType = listType;
-        }
-
-        @Override
-        public String toString() {
-            return type.toString();
         }
     }
 
@@ -100,9 +80,7 @@ public final class TagWriter implements Closeable {
         }
 
         public @NotNull Context push(@NotNull Mode newMode) {
-            Context ctx = new Context(newMode, this);
-            System.out.println("Pushing " + ctx);
-            return ctx;
+            return new Context(newMode, this);
         }
 
         public boolean hasNext() {
@@ -200,7 +178,6 @@ public final class TagWriter implements Closeable {
             break;
         case ROOT_UNDETERMINED:
             ctx = new Context(Mode.ROOT_LIST, null);
-            System.out.println("!! Context replaced! New context is " + ctx);
         case ROOT_LIST:
         case LIST:
             if (ctx.listType == TagType.END)
