@@ -149,7 +149,7 @@ public final class TagIO {
             for (int i = 0; reader.listHasNext(); i++)
                 bArr[i] = reader.nextByte();
             reader.endByteArray();
-            return new ByteArrayTag(bArr);
+            return ByteArrayTag.copyOf(bArr);
         case STRING:
             return StringTag.of(reader.nextString());
         case LIST:
@@ -170,14 +170,14 @@ public final class TagIO {
             for (int i = 0; reader.listHasNext(); i++)
                 iArr[i] = reader.nextByte();
             reader.endIntArray();
-            return new IntArrayTag(iArr);
+            return IntArrayTag.copyOf(iArr);
         case LONG_ARRAY:
             reader.beginLongArray();
             long[] lArr = new long[reader.listSize()];
             for (int i = 0; reader.listHasNext(); i++)
                 lArr[i] = reader.nextByte();
             reader.endLongArray();
-            return new LongArrayTag(lArr);
+            return LongArrayTag.copyOf(lArr);
         default:
             throw new MalformedTagException("Unreadable tag type " + type);
         }
@@ -208,10 +208,10 @@ public final class TagIO {
             writer.name(rootName);
             switch (rootTag.type()) {
             case COMPOUND:
-                writeCompound(writer, (CompoundTag) rootTag);
+                writeCompound(writer, (CompoundTagView) rootTag);
                 break;
             case LIST:
-                writeList(writer, (ListTag) rootTag);
+                writeList(writer, (ListTagView) rootTag);
                 break;
             default:
                 throw new MalformedTagException("Unsupported root tag type " + rootTag.type());
@@ -219,7 +219,7 @@ public final class TagIO {
         }
     }
 
-    private static void writeCompound(@NotNull TagWriter writer, @NotNull CompoundTag tag) throws IOException {
+    private static void writeCompound(@NotNull TagWriter writer, @NotNull CompoundTagView tag) throws IOException {
         writer.beginCompound();
         for (Map.Entry<String, Tag> entry : tag.entries()) {
             writer.name(entry.getKey());
@@ -228,7 +228,7 @@ public final class TagIO {
         writer.endCompound();
     }
 
-    private static void writeList(@NotNull TagWriter writer, @NotNull ListTag tag) throws IOException {
+    private static void writeList(@NotNull TagWriter writer, @NotNull ListTagView tag) throws IOException {
         writer.beginList();
         for (Tag item : tag)
             writeTag(writer, item);
@@ -256,7 +256,7 @@ public final class TagIO {
             writer.value(((DoubleTag) tag).value());
             break;
         case BYTE_ARRAY:
-            ByteArrayTag baTag = (ByteArrayTag) tag;
+            ByteArrayTagView baTag = (ByteArrayTagView) tag;
             writer.beginByteArray();
             for (int i = 0, size = baTag.length(); i < size; i++)
                 writer.value(baTag.get(i));
@@ -266,20 +266,20 @@ public final class TagIO {
             writer.value(((StringTag) tag).value());
             break;
         case LIST:
-            writeList(writer, (ListTag) tag);
+            writeList(writer, (ListTagView) tag);
             break;
         case COMPOUND:
-            writeCompound(writer, (CompoundTag) tag);
+            writeCompound(writer, (CompoundTagView) tag);
             break;
         case INT_ARRAY:
-            IntArrayTag iaTag = (IntArrayTag) tag;
+            IntArrayTagView iaTag = (IntArrayTagView) tag;
             writer.beginIntArray();
             for (int i = 0, size = iaTag.length(); i < size; i++)
                 writer.value(iaTag.get(i));
             writer.endIntArray();
             break;
         case LONG_ARRAY:
-            LongArrayTag laTag = (LongArrayTag) tag;
+            LongArrayTagView laTag = (LongArrayTagView) tag;
             writer.beginLongArray();
             for (int i = 0, size = laTag.length(); i < size; i++)
                 writer.value(laTag.get(i));

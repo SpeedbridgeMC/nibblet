@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ListTag implements Tag, Iterable<Tag> {
+public final class ListTag implements Tag, ListTagView {
     public static final class Builder {
         private final ArrayList<Tag> backingList;
         private TagType itemType;
@@ -44,6 +44,44 @@ public class ListTag implements Tag, Iterable<Tag> {
         return new Builder(initialCapacity);
     }
 
+    private final List<Tag> backingList;
+    private TagType itemType;
+    private final ListTagView view;
+
+    private ListTag(@NotNull TagType itemType, @NotNull List<@NotNull Tag> backingList) {
+        this.backingList = backingList;
+        this.itemType = itemType;
+        view = new ListTagView() {
+            @Override
+            public @NotNull TagType itemType() {
+                return ListTag.this.itemType();
+            }
+
+            @Override
+            public int size() {
+                return ListTag.this.size();
+            }
+
+            @Override
+            public @NotNull Tag get(int i) {
+                return ListTag.this.get(i).view();
+            }
+
+            @Override
+            public @NotNull Iterator<Tag> iterator() {
+                return ListTag.this.iterator();
+            }
+        };
+    }
+
+    public static @NotNull ListTag create() {
+        return new ListTag(TagType.END, new ArrayList<>());
+    }
+
+    public static @NotNull ListTag create(int initialCapacity) {
+        return new ListTag(TagType.END, new ArrayList<>(initialCapacity));
+    }
+
     @SafeVarargs
     public static <T extends Tag> @NotNull ListTag of(@NotNull T @NotNull ... values) {
         Builder builder = builder(values.length);
@@ -59,29 +97,61 @@ public class ListTag implements Tag, Iterable<Tag> {
         return builder.build();
     }
 
-    protected final List<Tag> backingList;
-    protected TagType itemType;
-
-    ListTag(@NotNull TagType itemType, @NotNull List<@NotNull Tag> backingList) {
-        this.backingList = backingList;
-        this.itemType = itemType;
-    }
-
     @Override
     public @NotNull TagType type() {
         return TagType.LIST;
     }
 
+    @Override
+    public @NotNull ListTagView view() {
+        return view;
+    }
+
+    @Override
     public @NotNull TagType itemType() {
         return itemType;
     }
 
+    @Override
     public int size() {
         return backingList.size();
     }
 
+    @Override
     public @NotNull Tag get(int i) {
         return backingList.get(i);
+    }
+
+    private void checkTagType(@NotNull Tag tag) {
+        if (itemType == TagType.END)
+            itemType = tag.type();
+        else if (itemType != tag.type())
+            throw new IllegalArgumentException("Tried to add tag of type " + tag.type() + " to list of type " + itemType + "!");
+    }
+
+    public @NotNull Tag set(int i, @NotNull Tag v) {
+        checkTagType(v);
+        return backingList.set(i, v);
+    }
+
+    public boolean add(@NotNull Tag v) {
+        checkTagType(v);
+        return backingList.add(v);
+    }
+
+    public @NotNull Tag removeAt(int i) {
+        return backingList.remove(i);
+    }
+
+    public boolean remove(@NotNull Tag v) {
+        return backingList.remove(v);
+    }
+
+    public <T extends Tag> boolean addAll(@NotNull Iterable<@NotNull T> values) {
+        boolean changed = false;
+        for (Tag v : values)
+            changed |= add(v);
+        return changed;
     }
 
     @NotNull
@@ -109,15 +179,14 @@ public class ListTag implements Tag, Iterable<Tag> {
 
     @Override
     public @NotNull ListTag copy() {
-        return this;
+        return new ListTag(itemType, backingList);
     }
 
     @Override
-    public @NotNull MutableListTag mutableCopy() {
-        MutableListTag tag = MutableListTag.create();
-        tag.itemType = itemType;
-        for (Tag v : backingList)
-            tag.backingList.add(v.mutableCopy());
-        return tag;
+    public @NotNull ListTag deepCopy() {
+        ListTag.Builder builder = builder(backingList.size());
+        for (Tag tag : this)
+            builder.add(tag);
+        return builder.build();
     }
 }

@@ -3,9 +3,9 @@ package io.github.speedbridgemc.nibblet;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Base interface for all tags.
+ * The base interface for all <em>tags</em> - in-memory representations of NBT structures.
  */
-public interface Tag extends Cloneable {
+public interface Tag {
     /**
      * Gets this tag's type.
      * @return tag type
@@ -33,13 +33,13 @@ public interface Tag extends Cloneable {
     }
 
     /**
-     * Creates a deep mutable copy of this tag.
+     * Gets an immutable view of this tag.
      *
      * @implNote Implementations may simply return {@code this} if the tag is immutable.
      *
-     * @return deep mutable copy of tag
+     * @return immutable view of tag
      */
-    default @NotNull Tag mutableCopy() {
-        return deepCopy();
+    default @NotNull Tag view() {
+        return this;
     }
 }

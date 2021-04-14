@@ -2,41 +2,84 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public class LongArrayTag implements Tag {
-    protected final long[] backingArray;
+import java.util.ArrayList;
 
-    LongArrayTag(long[] backingArray) {
-        this.backingArray = backingArray;
+public final class LongArrayTag implements Tag, LongArrayTagView {
+    private final ArrayList<Long> backingList;
+    private final LongArrayTagView view;
+
+    private LongArrayTag(@NotNull ArrayList<@NotNull Long> backingList) {
+        this.backingList = backingList;
+        view = new LongArrayTagView() {
+            @Override
+            public int length() {
+                return LongArrayTag.this.length();
+            }
+
+            @Override
+            public long get(int i) {
+                return LongArrayTag.this.get(i);
+            }
+        };
+    }
+
+    private LongArrayTag() {
+        this(new ArrayList<>()) ;
+    }
+
+    private LongArrayTag(int initialCapacity) {
+        this(new ArrayList<>(initialCapacity));
+    }
+
+    public static @NotNull LongArrayTag create() {
+        return new LongArrayTag();
+    }
+
+    public static @NotNull LongArrayTag create(int initialCapacity) {
+        return new LongArrayTag(initialCapacity);
     }
 
     public static @NotNull LongArrayTag copyOf(long @NotNull ... values) {
-        return new LongArrayTag(values.clone());
+        ArrayList<Long> list = new ArrayList<>(values.length);
+        for (long v : values)
+            list.add(v);
+        return new LongArrayTag(list);
     }
 
     @Override
-    public @NotNull TagType type() {
-        return TagType.LONG_ARRAY;
+    public @NotNull LongArrayTagView view() {
+        return view;
     }
 
+    @Override
     public int length() {
-        return backingArray.length;
+        return backingList.size();
     }
 
+    @Override
     public long get(int i) {
-        return backingArray[i];
+        return backingList.get(i);
     }
 
-    public long @NotNull [] toArray() {
-        return backingArray.clone();
+    public long set(int i, long v) {
+        return backingList.set(i, v);
+    }
+
+    public boolean add(long v) {
+        return backingList.add(v);
+    }
+
+    public long removeAt(int i) {
+        return backingList.remove(i);
+    }
+
+    public boolean remove(long v) {
+        return backingList.remove(v);
     }
 
     @Override
     public @NotNull LongArrayTag copy() {
-        return this;
+        return new LongArrayTag(new ArrayList<>(backingList));
     }
 
-    @Override
-    public @NotNull MutableLongArrayTag mutableCopy() {
-        return MutableLongArrayTag.copyOf(backingArray);
-    }
 }

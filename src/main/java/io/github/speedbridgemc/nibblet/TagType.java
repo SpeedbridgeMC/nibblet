@@ -52,7 +52,6 @@ public enum TagType {
      * {@code TAG_Byte_Array} - Encodes an array of {@code byte} values.
      *
      * @see ByteArrayTag
-     * @see MutableByteArrayTag
      */
     BYTE_ARRAY((byte) 7, "TAG_Byte_Array"),
     /**
@@ -65,28 +64,24 @@ public enum TagType {
      * {@code TAG_List} - Encodes a list of tags.
      * 
      * @see ListTag
-     * @see MutableListTag
      */
     LIST((byte) 9, "TAG_List"),
     /**
      * {@code TAG_Compound} - Encodes a list of named tags.
      * 
      * @see CompoundTag
-     * @see MutableCompoundTag
      */
     COMPOUND((byte) 10, "TAG_Compound"),
     /**
      * {@code TAG_Int_Array} - Encodes an array of {@code int} values.
      *
      * @see IntArrayTag
-     * @see MutableIntArrayTag
      */
     INT_ARRAY((byte) 11, "TAG_Int_Array"),
     /**
      * {@code TAG_Long_Array} - Encodes an array of {@code long} values.
      *
      * @see LongArrayTag
-     * @see MutableLongArrayTag
      */
     LONG_ARRAY((byte) 12, "TAG_Long_Array"),
     /**
