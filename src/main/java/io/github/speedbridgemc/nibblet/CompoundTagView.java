@@ -75,8 +75,8 @@ public interface CompoundTagView extends Tag {
 
     default byte @NotNull [] getByteArray(@NotNull String name) {
         Tag tag = get(name);
-        if (tag instanceof ByteArrayTag)
-            return ((ByteArrayTag) tag).toArray();
+        if (tag instanceof ByteArrayTagView)
+            return ((ByteArrayTagView) tag).toArray();
         return EMPTY_BYTE_ARRAY;
     }
 
@@ -88,17 +88,34 @@ public interface CompoundTagView extends Tag {
         return defaultValue;
     }
 
+    default @Nullable ListTagView getList(@NotNull String name, @NotNull TagType itemType) {
+        Tag tag = get(name);
+        if (tag instanceof ListTagView) {
+            ListTagView listTag = (ListTagView) tag;
+            if (listTag.itemType() == itemType)
+                return listTag;
+        }
+        return null;
+    }
+
+    default @Nullable CompoundTagView getCompound(@NotNull String name) {
+        Tag tag = get(name);
+        if (tag instanceof CompoundTagView)
+            return (CompoundTagView) tag;
+        return null;
+    }
+
     default int @NotNull [] getIntArray(@NotNull String name) {
         Tag tag = get(name);
-        if (tag instanceof IntArrayTag)
-            return ((IntArrayTag) tag).toArray();
+        if (tag instanceof IntArrayTagView)
+            return ((IntArrayTagView) tag).toArray();
         return EMPTY_INT_ARRAY;
     }
 
     default long @NotNull [] getLongArray(@NotNull String name) {
         Tag tag = get(name);
-        if (tag instanceof LongArrayTag)
-            return ((LongArrayTag) tag).toArray();
+        if (tag instanceof LongArrayTagView)
+            return ((LongArrayTagView) tag).toArray();
         return EMPTY_LONG_ARRAY;
     }
 
