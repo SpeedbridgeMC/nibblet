@@ -31,6 +31,50 @@ public final class ListTag implements Tag, ListTagView {
             return this;
         }
 
+        public @NotNull Builder addByte(byte value) {
+            return add(ByteTag.of(value));
+        }
+
+        public @NotNull Builder addBoolean(boolean value) {
+            return add(ByteTag.of((byte) (value ? 1 : 0)));
+        }
+
+        public @NotNull Builder addShort(short value) {
+            return add(ShortTag.of(value));
+        }
+
+        public @NotNull Builder addInt(int value) {
+            return add(IntTag.of(value));
+        }
+
+        public @NotNull Builder addLong(long value) {
+            return add(LongTag.of(value));
+        }
+
+        public @NotNull Builder addFloat(float value) {
+            return add(FloatTag.of(value));
+        }
+
+        public @NotNull Builder addDouble(double value) {
+            return add(DoubleTag.of(value));
+        }
+
+        public @NotNull Builder addByteArray(byte @NotNull ... values) {
+            return add(ByteArrayTag.copyOf(values));
+        }
+
+        public @NotNull Builder addString(@NotNull String value) {
+            return add(StringTag.of(value));
+        }
+
+        public @NotNull Builder addIntArray(int @NotNull ... values) {
+            return add(IntArrayTag.copyOf(values));
+        }
+
+        public @NotNull Builder addLongArray(long @NotNull ... values) {
+            return add(LongArrayTag.copyOf(values));
+        }
+
         public @NotNull ListTag build() {
             return new ListTag(itemType, new ArrayList<>(backingList));
         }
@@ -134,9 +178,97 @@ public final class ListTag implements Tag, ListTagView {
         return backingList.set(i, v);
     }
 
+    public void setByte(int i, byte value) {
+        set(i, ByteTag.of(value));
+    }
+
+    public void setBoolean(int i, boolean value) {
+        set(i, ByteTag.of((byte) (value ? 1 : 0)));
+    }
+
+    public void setShort(int i, short value) {
+        set(i, ShortTag.of(value));
+    }
+
+    public void setInt(int i, int value) {
+        set(i, IntTag.of(value));
+    }
+
+    public void setLong(int i, long value) {
+        set(i, LongTag.of(value));
+    }
+
+    public void setFloat(int i, float value) {
+        set(i, FloatTag.of(value));
+    }
+
+    public void setDouble(int i, double value) {
+        set(i, DoubleTag.of(value));
+    }
+
+    public void setByteArray(int i, byte @NotNull ... values) {
+        set(i, ByteArrayTag.copyOf(values));
+    }
+
+    public void setString(int i, @NotNull String value) {
+        set(i, StringTag.of(value));
+    }
+
+    public void setIntArray(int i, int @NotNull ... values) {
+        set(i, IntArrayTag.copyOf(values));
+    }
+
+    public void setLongArray(int i, long @NotNull ... values) {
+        set(i, LongArrayTag.copyOf(values));
+    }
+
     public boolean add(@NotNull Tag v) {
         checkTagType(v);
         return backingList.add(v);
+    }
+
+    public void addByte(byte value) {
+        add(ByteTag.of(value));
+    }
+
+    public void addBoolean(boolean value) {
+        add(ByteTag.of((byte) (value ? 1 : 0)));
+    }
+
+    public void addShort(short value) {
+        add(ShortTag.of(value));
+    }
+
+    public void addInt(int value) {
+        add(IntTag.of(value));
+    }
+
+    public void addLong(long value) {
+        add(LongTag.of(value));
+    }
+
+    public void addFloat(float value) {
+        add(FloatTag.of(value));
+    }
+
+    public void addDouble(double value) {
+        add(DoubleTag.of(value));
+    }
+
+    public void addByteArray(byte @NotNull ... values) {
+        add(ByteArrayTag.copyOf(values));
+    }
+
+    public void addString(@NotNull String value) {
+        add(StringTag.of(value));
+    }
+
+    public void addIntArray(int @NotNull ... values) {
+        add(IntArrayTag.copyOf(values));
+    }
+
+    public void addLongArray(long @NotNull ... values) {
+        add(LongArrayTag.copyOf(values));
     }
 
     public @NotNull Tag removeAt(int i) {

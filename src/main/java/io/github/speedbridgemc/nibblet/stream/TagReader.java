@@ -219,6 +219,10 @@ public final class TagReader implements Closeable {
         return (byte) (in.read() & 0xFF);
     }
 
+    public boolean nextBoolean() throws IOException {
+        return nextByte() > 0;
+    }
+
     public short nextShort() throws IOException {
         nextItem(TagType.SHORT);
         return streamHandler.readShort(in);

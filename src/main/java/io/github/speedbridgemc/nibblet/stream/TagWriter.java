@@ -224,6 +224,10 @@ public final class TagWriter implements Closeable {
         return this;
     }
 
+    public @NotNull TagWriter value(boolean value) throws IOException {
+        return value((byte) (value ? 1 : 0));
+    }
+
     public @NotNull TagWriter value(short value) throws IOException {
         value(TagType.SHORT, () -> streamHandler.writeShort(out, value));
         return this;
