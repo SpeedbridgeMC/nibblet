@@ -7,6 +7,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface Tag {
     /**
+     * An empty array of {@code byte}s.
+     */
+    byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    /**
+     * An empty array of {@code int}s.
+     */
+    int[] EMPTY_INT_ARRAY = new int[0];
+    /**
+     * An empty array of {@code long}s.
+     */
+    long[] EMPTY_LONG_ARRAY = new long[0];
+
+    /**
      * Gets this tag's type.
      * @return tag type
      */

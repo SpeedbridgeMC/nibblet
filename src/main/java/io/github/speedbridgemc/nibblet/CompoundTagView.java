@@ -7,10 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface CompoundTagView extends Tag {
-    byte[] EMPTY_BYTE_ARRAY = new byte[0];
-    int[] EMPTY_INT_ARRAY = new int[0];
-    long[] EMPTY_LONG_ARRAY = new long[0];
-
     @Override
     default @NotNull TagType type() {
         return TagType.COMPOUND;
@@ -80,8 +76,7 @@ public interface CompoundTagView extends Tag {
         return EMPTY_BYTE_ARRAY;
     }
 
-    @NotNull
-    default String getString(@NotNull String name, @NotNull String defaultValue) {
+    default @NotNull String getString(@NotNull String name, @NotNull String defaultValue) {
         Tag tag = get(name);
         if (tag instanceof StringTag)
             return ((StringTag) tag).value();
