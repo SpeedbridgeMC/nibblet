@@ -17,10 +17,10 @@ public final class TagIO {
     private TagIO() { }
 
     /**
-     * Represents a named {@link Tag}.
+     * Represents a named {@link RootTag}.
      * @param <T> tag type
      */
-    public interface Named<T extends Tag> {
+    public interface Named<T extends RootTag> {
         /**
          * Gets the tag itself.
          * @return tag
@@ -98,7 +98,7 @@ public final class TagIO {
      * @throws MalformedTagException if the tag data is malformed.
      * @throws IOException if an I/O error occurred.
      */
-    public static @NotNull Named<? extends Tag> read(@NotNull TagStreamHandler streamHandler, @NotNull InputStream in) throws IOException {
+    public static @NotNull Named<? extends RootTag> read(@NotNull TagStreamHandler streamHandler, @NotNull InputStream in) throws IOException {
         try (TagReader reader = new TagReader(streamHandler, in)) {
             TagType rootType = reader.nextType();
             if (rootType == TagType.ROOT_LIST)
@@ -198,7 +198,7 @@ public final class TagIO {
      * @param out output stream
      * @throws IOException if an I/O error occurs.
      */
-    public static void write(@NotNull String rootName, @NotNull Tag rootTag, @NotNull TagStreamHandler streamHandler, @NotNull OutputStream out)
+    public static void write(@NotNull String rootName, @NotNull RootTag rootTag, @NotNull TagStreamHandler streamHandler, @NotNull OutputStream out)
             throws IOException {
         try (TagWriter writer = new TagWriter(streamHandler, out)) {
             writer.name(rootName);

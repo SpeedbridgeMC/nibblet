@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
-public interface ListTagView extends Tag, Iterable<Tag> {
+public interface ListTagView extends RootTag, Iterable<Tag> {
     @Override
     default @NotNull TagType type() {
         return TagType.LIST;

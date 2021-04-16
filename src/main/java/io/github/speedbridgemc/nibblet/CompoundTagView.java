@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public interface CompoundTagView extends Tag {
+public interface CompoundTagView extends RootTag {
     @Override
     default @NotNull TagType type() {
         return TagType.COMPOUND;
