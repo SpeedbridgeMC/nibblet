@@ -135,13 +135,15 @@ public final class TagReader implements Closeable {
         ctx = ctx.pop();
     }
 
-    public void beginRootList() throws IOException {
+    public @NotNull String beginRootList() throws IOException {
         expectType(TagType.ROOT_LIST);
+        String name = nextName();
         ctx = ctx.push();
         ctx.isList = true;
         ctx.type = TagType.ROOT_LIST;
-        ctx.itemType = TagType.LIST;
+        ctx.itemType = nextType();
         ctx.itemsRemaining = 1;
+        return name;
     }
 
     public void endRootList() throws IOException {
@@ -206,6 +208,8 @@ public final class TagReader implements Closeable {
     public @NotNull String nextName() throws IOException {
         firstByte = false;
         int utflen = streamHandler.readUTFLength(in);
+        if (utflen == 0)
+            return "";
         byte[] buf = buffer(utflen);
         if (in.read(buf, 0, utflen) < utflen)
             throw new IOException("Failed to read entire string");

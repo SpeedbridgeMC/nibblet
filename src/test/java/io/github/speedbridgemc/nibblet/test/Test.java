@@ -1,10 +1,8 @@
 package io.github.speedbridgemc.nibblet.test;
 
 import io.github.speedbridgemc.nibblet.*;
-import io.github.speedbridgemc.nibblet.TagFormats;
 import io.github.speedbridgemc.nibblet.stream.TagWriter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +40,7 @@ public final class Test {
 
         Path pathS = Paths.get(".", "test_stream.nbt").toAbsolutePath().normalize();
         try (OutputStream out = Files.newOutputStream(pathS);
-             TagWriter writer = new TagWriter(TagFormats.JAVA, out)) {
+             TagWriter writer = new TagWriter(TagFormats.BEDROCK, out)) {
             writer.name("test_root")
                     .beginCompound()
                     .name("test_nested")
@@ -97,17 +95,36 @@ public final class Test {
 
         try (InputStream in = Files.newInputStream(path)) {
             TagIO.Named<?> tag = TagIO.read(TagFormats.JAVA, in);
-            if (tag.tagType() != TagType.COMPOUND)
-                throw new IOException("Unsupported root tag type " + tag.tagType());
+            System.out.println("Reading from file \"" + path + "\":");
             printTag(tag.tag(), tag.name(), "");
+            System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + path + "\"");
             e.printStackTrace();
         }
+
+        try (InputStream in = Files.newInputStream(pathS)) {
+            TagIO.Named<?> tag = TagIO.read(TagFormats.BEDROCK, in);
+            System.out.println("Reading from file \"" + pathS + "\":");
+            printTag(tag.tag(), tag.name(), "");
+            System.out.println();
+        } catch (IOException e) {
+            System.err.println("Failed to read from \"" + pathS + "\"");
+            e.printStackTrace();
+        }
+
+        try (InputStream in = Files.newInputStream(pathSL)) {
+            TagIO.Named<?> tag = TagIO.read(TagFormats.BEDROCK, in);
+            System.out.println("Reading from file \"" + pathSL + "\":");
+            printTag(tag.tag(), tag.name(), "");
+        } catch (IOException e) {
+            System.err.println("Failed to read from \"" + pathSL + "\"");
+            e.printStackTrace();
+        }
     }
 
-    private static void printTag(@NotNull Tag tag, @Nullable String name, @NotNull String indent) {
-        System.out.format("%s%s(%s): ", indent, tag.type(), name == null ? "None" : "'" + name + "'");
+    private static void printTag(@NotNull Tag tag, @NotNull String name, @NotNull String indent) {
+        System.out.format("%s%s(%s): ", indent, tag.type(), name.isEmpty() ? "None" : "'" + name + "'");
         switch (tag.type()) {
         case BYTE:
             System.out.format("%d%n", ((ByteTag) tag).value());
@@ -144,7 +161,7 @@ public final class Test {
             ListTagView listTag = (ListTagView) tag;
             System.out.format("%s%n%s{%n", entryCount(listTag.size()), indent);
             for (Tag item : listTag)
-                printTag(item, null, indent + "  ");
+                printTag(item, "", indent + "  ");
             System.out.format("%s}%n", indent);
             break;
         case COMPOUND:

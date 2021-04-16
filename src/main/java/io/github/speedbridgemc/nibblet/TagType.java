@@ -86,8 +86,7 @@ public enum TagType {
     LONG_ARRAY((byte) 12, "TAG_Long_Array"),
     /**
      * A pseudo-tag type representing a root {@code TAG_List} (Bedrock Edition supports this).<p>
-     * Notably, this list doesn't have its size nor its type specified -
-     * it always contains a single {@code TAG_List}.
+     * Notably, this list doesn't have its size specified - it always contains a single entry.
      */
     ROOT_LIST((byte) 99, "TAG_Root_List");
 

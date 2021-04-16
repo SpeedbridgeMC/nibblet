@@ -111,14 +111,10 @@ public final class TagIO {
     }
 
     private static @NotNull NamedListTag readRootList(@NotNull TagReader reader) throws IOException {
-        reader.beginRootList();
-        String rootName = reader.nextName();
-        ListTag.Builder builder = ListTag.builder(reader.listSize());
-        TagType type = reader.listItemType();
-        while (reader.listHasNext())
-            builder.add(readTag(reader, type));
+        String rootName = reader.beginRootList();
+        ListTag listTag = ListTag.of(readTag(reader, reader.listItemType()));
         reader.endRootList();
-        return new NamedListTag(builder.build(), rootName);
+        return new NamedListTag(listTag, rootName);
     }
 
     private static @NotNull NamedCompoundTag readRootCompound(@NotNull TagReader reader) throws IOException {
