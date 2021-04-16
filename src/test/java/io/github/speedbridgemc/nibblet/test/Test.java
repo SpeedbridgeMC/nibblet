@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 public final class Test {
     public static void main(String[] args) {
@@ -117,8 +118,21 @@ public final class Test {
             TagIO.Named<?> tag = TagIO.read(TagFormats.BEDROCK, in);
             System.out.println("Reading from file \"" + pathSL + "\":");
             printTag(tag.tag(), tag.name(), "");
+            System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathSL + "\"");
+            e.printStackTrace();
+        }
+
+        // get bigtest.nbt from https://raw.github.com/Dav1dde/nbd/master/test/bigtest.nbt
+        Path pathBig = Paths.get(".", "bigtest.nbt").toAbsolutePath().normalize();
+        try (InputStream inCompressed = Files.newInputStream(pathBig);
+             GZIPInputStream in = new GZIPInputStream(inCompressed)) {
+            TagIO.Named<?> tag = TagIO.read(TagFormats.JAVA, in);
+            System.out.println("Reading from file \"" + pathBig + "\":");
+            printTag(tag.tag(), tag.name(), "");
+        } catch (IOException e) {
+            System.err.print("Failed to read from \"" + pathBig + "\"");
             e.printStackTrace();
         }
     }

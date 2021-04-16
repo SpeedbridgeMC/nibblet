@@ -27,24 +27,30 @@ public final class TagReader implements Closeable {
     private @Nullable TagType thisType;
     private boolean firstByte;
     private @NotNull Context ctx;
+    
+    private enum Mode {
+        ROOT,
+        COMPOUND,
+        LIST
+    }
 
     private static final class Context {
+        public final @NotNull Mode mode;
         private final @Nullable Context next;
-        public boolean isList;
         public @NotNull TagType type;
         public @NotNull TagType itemType;
         public int itemsRemaining;
 
-        private Context(@Nullable Context next) {
+        private Context(@NotNull Mode mode, @Nullable Context next) {
+            this.mode = mode;
             this.next = next;
-            isList = false;
             type = TagType.LIST;
             itemType = TagType.END;
             itemsRemaining = 0;
         }
         
-        public @NotNull Context push() {
-            return new Context(this);
+        public @NotNull Context push(@NotNull Mode newMode) {
+            return new Context(newMode, this);
         }
         
         public @NotNull Context pop() {
@@ -58,7 +64,7 @@ public final class TagReader implements Closeable {
         this.streamHandler = streamHandler;
         this.in = in;
         firstByte = true;
-        ctx = new Context(null);
+        ctx = new Context(Mode.ROOT, null);
     }
 
     public @NotNull TagType nextType() throws IOException {
@@ -76,7 +82,7 @@ public final class TagReader implements Closeable {
     }
 
     private void expectType(@NotNull TagType expectedType) throws IOException {
-        if (ctx.isList) {
+        if (ctx.mode == Mode.LIST) {
             if (ctx.itemType == expectedType) {
                 if (--ctx.itemsRemaining < 0)
                     throw new MalformedTagException("List or array is too small");
@@ -94,35 +100,38 @@ public final class TagReader implements Closeable {
 
     public void beginCompound() throws IOException {
         expectType(TagType.COMPOUND);
+        ctx = ctx.push(Mode.COMPOUND);
     }
-    
+
     public void endCompound() throws IOException {
+        if (ctx.mode != Mode.COMPOUND)
+            throw new MalformedTagException("Not in a compound");
         expectType(TagType.END);
+        ctx = ctx.pop();
     }
 
     public void beginList() throws IOException {
         expectType(TagType.LIST);
-        ctx = ctx.push();
-        ctx.isList = true;
+        ctx = ctx.push(Mode.LIST);
         ctx.type = TagType.LIST;
         ctx.itemType = nextType();
         ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public @NotNull TagType listItemType() throws IOException {
-        if (!ctx.isList)
+        if (ctx.mode != Mode.LIST)
             throw new MalformedTagException("Not in a list or array");
         return ctx.itemType;
     }
 
     public int listSize() throws IOException {
-        if (!ctx.isList)
+        if (ctx.mode != Mode.LIST)
             throw new MalformedTagException("Not in a list or array");
         return ctx.itemsRemaining;
     }
 
     public boolean listHasNext() throws IOException {
-        if (!ctx.isList)
+        if (ctx.mode != Mode.LIST)
             throw new MalformedTagException("Not in a list or array");
         return ctx.itemsRemaining > 0;
     }
@@ -138,8 +147,7 @@ public final class TagReader implements Closeable {
     public @NotNull String beginRootList() throws IOException {
         expectType(TagType.ROOT_LIST);
         String name = nextName();
-        ctx = ctx.push();
-        ctx.isList = true;
+        ctx = ctx.push(Mode.LIST);
         ctx.type = TagType.ROOT_LIST;
         ctx.itemType = nextType();
         ctx.itemsRemaining = 1;
@@ -156,8 +164,7 @@ public final class TagReader implements Closeable {
 
     public void beginByteArray() throws IOException {
         expectType(TagType.BYTE_ARRAY);
-        ctx = ctx.push();
-        ctx.isList = true;
+        ctx = ctx.push(Mode.LIST);
         ctx.type = TagType.BYTE_ARRAY;
         ctx.itemType = TagType.BYTE;
         ctx.itemsRemaining = streamHandler.readInt(in);
@@ -173,8 +180,7 @@ public final class TagReader implements Closeable {
 
     public void beginIntArray() throws IOException {
         expectType(TagType.INT_ARRAY);
-        ctx = ctx.push();
-        ctx.isList = true;
+        ctx = ctx.push(Mode.LIST);
         ctx.type = TagType.INT_ARRAY;
         ctx.itemType = TagType.INT;
         ctx.itemsRemaining = streamHandler.readInt(in);
@@ -190,8 +196,7 @@ public final class TagReader implements Closeable {
 
     public void beginLongArray() throws IOException {
         expectType(TagType.LONG_ARRAY);
-        ctx = ctx.push();
-        ctx.isList = true;
+        ctx = ctx.push(Mode.LIST);
         ctx.type = TagType.LONG_ARRAY;
         ctx.itemType = TagType.LONG;
         ctx.itemsRemaining = streamHandler.readInt(in);
