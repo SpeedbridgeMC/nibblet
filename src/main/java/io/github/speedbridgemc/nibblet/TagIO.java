@@ -168,14 +168,14 @@ public final class TagIO {
             reader.beginIntArray();
             int[] iArr = new int[reader.listSize()];
             for (int i = 0; reader.listHasNext(); i++)
-                iArr[i] = reader.nextByte();
+                iArr[i] = reader.nextInt();
             reader.endIntArray();
             return IntArrayTag.copyOf(iArr);
         case LONG_ARRAY:
             reader.beginLongArray();
             long[] lArr = new long[reader.listSize()];
             for (int i = 0; reader.listHasNext(); i++)
-                lArr[i] = reader.nextByte();
+                lArr[i] = reader.nextLong();
             reader.endLongArray();
             return LongArrayTag.copyOf(lArr);
         default:

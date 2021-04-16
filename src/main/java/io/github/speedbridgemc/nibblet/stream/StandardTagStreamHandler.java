@@ -72,9 +72,9 @@ public class StandardTagStreamHandler implements TagStreamHandler {
         if (in.read(buf.array(), 0, Short.BYTES) < Short.BYTES)
             throw new IOException("Failed to read entire UTF length");
         if (byteOrder == ByteOrder.LITTLE_ENDIAN)
-            return buf.get(0) << 8 | buf.get(1);
-        else
             return buf.get(1) << 8 | buf.get(0);
+        else
+            return buf.get(0) << 8 | buf.get(1);
     }
 
     @Override

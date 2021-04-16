@@ -74,15 +74,24 @@ public final class TagReader implements Closeable {
         thisType = type;
         return type;
     }
-    
+
     private void expectType(@NotNull TagType expectedType) throws IOException {
-        if (thisType == null)
-            thisType = nextType();
-        if (thisType != TagType.COMPOUND)
-            throw new MalformedTagException("Expected " + expectedType + ", got " + thisType);
-        thisType = null;
+        if (ctx.isList) {
+            if (ctx.itemType == expectedType) {
+                if (--ctx.itemsRemaining < 0)
+                    throw new MalformedTagException("List or array is too small");
+            } else
+                throw new MalformedTagException("Tried to read " + expectedType + " from list or array of " + ctx.itemType);
+            firstByte = false;
+        } else {
+            if (thisType == null)
+                nextType();
+            if (thisType != expectedType)
+                throw new MalformedTagException("Expected " + expectedType + ", got " + thisType);
+            thisType = null;
+        }
     }
-    
+
     public void beginCompound() throws IOException {
         expectType(TagType.COMPOUND);
     }
@@ -97,7 +106,7 @@ public final class TagReader implements Closeable {
         ctx.isList = true;
         ctx.type = TagType.LIST;
         ctx.itemType = nextType();
-        ctx.itemsRemaining = nextInt();
+        ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public @NotNull TagType listItemType() throws IOException {
@@ -149,7 +158,7 @@ public final class TagReader implements Closeable {
         ctx.isList = true;
         ctx.type = TagType.BYTE_ARRAY;
         ctx.itemType = TagType.BYTE;
-        ctx.itemsRemaining = nextInt();
+        ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public void endByteArray() throws IOException {
@@ -166,12 +175,12 @@ public final class TagReader implements Closeable {
         ctx.isList = true;
         ctx.type = TagType.INT_ARRAY;
         ctx.itemType = TagType.INT;
-        ctx.itemsRemaining = nextInt();
+        ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public void endIntArray() throws IOException {
-        if (ctx.type != TagType.BYTE_ARRAY)
-            throw new MalformedTagException("Not in a " + TagType.BYTE_ARRAY);
+        if (ctx.type != TagType.INT_ARRAY)
+            throw new MalformedTagException("Not in a " + TagType.INT_ARRAY);
         if (ctx.itemsRemaining > 0)
             throw new MalformedTagException("Expected end of list or array");
         ctx = ctx.pop();
@@ -183,7 +192,7 @@ public final class TagReader implements Closeable {
         ctx.isList = true;
         ctx.type = TagType.LONG_ARRAY;
         ctx.itemType = TagType.LONG;
-        ctx.itemsRemaining = nextInt();
+        ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public void endLongArray() throws IOException {
@@ -203,19 +212,8 @@ public final class TagReader implements Closeable {
         return ModUTF8Strings.decode(buf, utflen);
     }
 
-    private void nextItem(@NotNull TagType type) throws IOException {
-        if (ctx.isList && ctx.itemType == type) {
-            if (--ctx.itemsRemaining < 0)
-                throw new MalformedTagException("List or array is too small");
-        } else if (ctx.isList)
-            throw new MalformedTagException("Tried to read byte from list or array of " + ctx.itemType);
-        else
-            expectType(type);
-        firstByte = false;
-    }
-
     public byte nextByte() throws IOException {
-        nextItem(TagType.BYTE);
+        expectType(TagType.BYTE);
         return (byte) (in.read() & 0xFF);
     }
 
@@ -224,32 +222,32 @@ public final class TagReader implements Closeable {
     }
 
     public short nextShort() throws IOException {
-        nextItem(TagType.SHORT);
+        expectType(TagType.SHORT);
         return streamHandler.readShort(in);
     }
 
     public int nextInt() throws IOException {
-        nextItem(TagType.INT);
+        expectType(TagType.INT);
         return streamHandler.readInt(in);
     }
 
     public long nextLong() throws IOException {
-        nextItem(TagType.LONG);
+        expectType(TagType.LONG);
         return streamHandler.readLong(in);
     }
 
     public float nextFloat() throws IOException {
-        nextItem(TagType.FLOAT);
+        expectType(TagType.FLOAT);
         return streamHandler.readFloat(in);
     }
 
     public double nextDouble() throws IOException {
-        nextItem(TagType.DOUBLE);
+        expectType(TagType.DOUBLE);
         return streamHandler.readDouble(in);
     }
 
     public @NotNull String nextString() throws IOException {
-        nextItem(TagType.STRING);
+        expectType(TagType.STRING);
         return nextName();
     }
 

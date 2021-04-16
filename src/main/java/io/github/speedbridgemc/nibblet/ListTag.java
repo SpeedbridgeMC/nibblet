@@ -166,7 +166,7 @@ public final class ListTag implements Tag, ListTagView {
         return backingList.get(i);
     }
 
-    private void checkTagType(@NotNull Tag tag) {
+    private void checkItemType(@NotNull Tag tag) {
         if (itemType == TagType.END)
             itemType = tag.type();
         else if (itemType != tag.type())
@@ -174,7 +174,7 @@ public final class ListTag implements Tag, ListTagView {
     }
 
     public @NotNull Tag set(int i, @NotNull Tag v) {
-        checkTagType(v);
+        checkItemType(v);
         return backingList.set(i, v);
     }
 
@@ -223,7 +223,7 @@ public final class ListTag implements Tag, ListTagView {
     }
 
     public boolean add(@NotNull Tag v) {
-        checkTagType(v);
+        checkItemType(v);
         return backingList.add(v);
     }
 
@@ -284,6 +284,11 @@ public final class ListTag implements Tag, ListTagView {
         for (Tag v : values)
             changed |= add(v);
         return changed;
+    }
+
+    public void clear() {
+        backingList.clear();
+        itemType = TagType.END;
     }
 
     @NotNull
