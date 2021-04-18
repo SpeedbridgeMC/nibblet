@@ -144,14 +144,12 @@ public final class TagReader implements Closeable {
         ctx = ctx.pop();
     }
 
-    public @NotNull String beginRootList() throws IOException {
+    public void beginRootList() throws IOException {
         expectType(TagType.ROOT_LIST);
-        String name = nextName();
         ctx = ctx.push(Mode.LIST);
         ctx.type = TagType.ROOT_LIST;
         ctx.itemType = nextType();
         ctx.itemsRemaining = 1;
-        return name;
     }
 
     public void endRootList() throws IOException {
@@ -258,6 +256,91 @@ public final class TagReader implements Closeable {
     public @NotNull String nextString() throws IOException {
         expectType(TagType.STRING);
         return nextName();
+    }
+
+    public void skipValue() throws IOException {
+        TagType skippedType;
+        if (ctx.mode == Mode.LIST)
+            skippedType = ctx.itemType;
+        else if (thisType != null)
+            skippedType = thisType;
+        else
+            skippedType = nextType();
+        if (skippedType.hasConstantPayloadSize()) {
+            final long payloadSize = skippedType.payloadSize();
+            if (in.skip(payloadSize) < payloadSize)
+                throw new IOException("Failed to skip entire " + skippedType + " value");
+            return;
+        }
+        long bytesToSkip;
+        switch (skippedType) {
+        case BYTE_ARRAY:
+            beginByteArray();
+            bytesToSkip = TagType.BYTE.payloadSize() * ctx.itemsRemaining;
+            if (in.skip(bytesToSkip) < bytesToSkip)
+                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            ctx.itemsRemaining = 0;
+            endByteArray();
+            break;
+        case STRING:
+            bytesToSkip = streamHandler.readUTFLength(in);
+            if (in.skip(bytesToSkip) < bytesToSkip)
+                throw new IOException("Failed to skip entire " + skippedType + " value");
+            break;
+        case LIST:
+            beginList();
+            if (ctx.itemType.hasConstantPayloadSize()) {
+                bytesToSkip = ctx.itemType.payloadSize() * ctx.itemsRemaining;
+                if (in.skip(bytesToSkip) < bytesToSkip)
+                    throw new IOException("Failed to skip entire list of " + ctx.itemType + " (" + ctx.itemsRemaining + " entries)");
+            } else {
+                int itemsRemaining = ctx.itemsRemaining;
+                for (int i = 0; i < itemsRemaining; i++)
+                    skipValue();
+            }
+            ctx.itemsRemaining = 0;
+            endList();
+            break;
+        case COMPOUND:
+            beginCompound();
+            skippedType = nextType();
+            while (skippedType != TagType.END) {
+                bytesToSkip = streamHandler.readUTFLength(in);
+                if (in.skip(bytesToSkip) < bytesToSkip)
+                    throw new IOException("Failed to skip entire name");
+                skipValue();
+                skippedType = nextType();
+            }
+            endCompound();
+            break;
+        case INT_ARRAY:
+            beginIntArray();
+            bytesToSkip = TagType.INT.payloadSize() * ctx.itemsRemaining;
+            if (in.skip(bytesToSkip) < bytesToSkip)
+                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            ctx.itemsRemaining = 0;
+            endIntArray();
+            break;
+        case LONG_ARRAY:
+            beginLongArray();
+            bytesToSkip = TagType.LONG.payloadSize() * ctx.itemsRemaining;
+            if (in.skip(bytesToSkip) < bytesToSkip)
+                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            ctx.itemsRemaining = 0;
+            endLongArray();
+            break;
+        case ROOT_LIST:
+            bytesToSkip = streamHandler.readUTFLength(in);
+            if (in.skip(bytesToSkip) < bytesToSkip)
+                throw new IOException("Failed to skip entire name");
+            beginRootList();
+            skipValue();
+            ctx.itemsRemaining = 0;
+            endRootList();
+            break;
+        default:
+            throw new InternalError("Unhandled tag type with non-constant payload size: " + skippedType);
+        }
     }
 
     @Override

@@ -111,7 +111,8 @@ public final class TagIO {
     }
 
     private static @NotNull NamedListTag readRootList(@NotNull TagReader reader) throws IOException {
-        String rootName = reader.beginRootList();
+        String rootName = reader.nextName();
+        reader.beginRootList();
         ListTag listTag = ListTag.of(readTag(reader, reader.listItemType()));
         reader.endRootList();
         return new NamedListTag(listTag, rootName);

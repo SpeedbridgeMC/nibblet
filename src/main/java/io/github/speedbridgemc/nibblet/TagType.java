@@ -11,43 +11,43 @@ public enum TagType {
     /**
      * {@code TAG_End} - End of a {@link #COMPOUND} tag. Also used for the item type of empty {@link #LIST}s.
      */
-    END((byte) 0, "TAG_End"),
+    END((byte) 0, "TAG_End", 0),
     /**
      * {@code TAG_Byte} - Encodes a {@code byte} value.
      *
      * @see ByteTag
      */
-    BYTE((byte) 1, "TAG_Byte"),
+    BYTE((byte) 1, "TAG_Byte", Byte.BYTES),
     /**
      * {@code TAG_Short} - Encodes a {@code short} value.
      *
      * @see ShortTag
      */
-    SHORT((byte) 2, "TAG_Short"),
+    SHORT((byte) 2, "TAG_Short", Short.BYTES),
     /**
      * {@code TAG_Int} - Encodes an {@code int} value.
      *
      * @see IntTag
      */
-    INT((byte) 3, "TAG_Int"),
+    INT((byte) 3, "TAG_Int", Integer.BYTES),
     /**
      * {@code TAG_Long} - Encodes a {@code long} value.
      *
      * @see LongTag
      */
-    LONG((byte) 4, "TAG_Long"),
+    LONG((byte) 4, "TAG_Long", Long.BYTES),
     /**
      * {@code TAG_Float} - Encodes a {@code float} value.
      *
      * @see FloatTag
      */
-    FLOAT((byte) 5, "TAG_Float"),
+    FLOAT((byte) 5, "TAG_Float", Float.BYTES),
     /**
      * {@code TAG_Double} - Encodes a {@code double} value.
      *
      * @see DoubleTag
      */
-    DOUBLE((byte) 6, "TAG_Double"),
+    DOUBLE((byte) 6, "TAG_Double", Double.BYTES),
     /**
      * {@code TAG_Byte_Array} - Encodes an array of {@code byte} values.
      *
@@ -92,10 +92,16 @@ public enum TagType {
 
     private final byte id;
     private final String name;
+    private final long payloadSize;
 
-    TagType(byte id, String name) {
+    TagType(byte id, String name, long payloadSize) {
         this.id = id;
         this.name = name;
+        this.payloadSize = payloadSize;
+    }
+
+    TagType(byte id, String name) {
+        this(id, name, -1);
     }
 
     /**
@@ -113,6 +119,22 @@ public enum TagType {
     @Override
     public String toString() {
         return name;
+    }
+
+    /**
+     * Checks if this tag type's value has a constant size.
+     * @return {@code true} if payload size is constant, {@code false} otherwise
+     */
+    public boolean hasConstantPayloadSize() {
+        return payloadSize >= 0;
+    }
+
+    /**
+     * Gets the size of this tag type's encoded value in bytes. If the size is non-constant, returns -1 instead.
+     * @return payload size, or -1 if non-constant
+     */
+    public long payloadSize() {
+        return payloadSize;
     }
 
     /**
