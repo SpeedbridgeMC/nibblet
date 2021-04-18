@@ -83,7 +83,7 @@ public final class Test {
         Path pathSL = Paths.get(".", "test_stream_list.nbt").toAbsolutePath().normalize();
         try (OutputStream out = Files.newOutputStream(pathSL);
              TagWriter writer = new TagWriter(TagFormats.BEDROCK, out)) {
-            writer.name("")
+            writer.name("root_list")
                     .beginList()
                     .value("a")
                     .value("b")

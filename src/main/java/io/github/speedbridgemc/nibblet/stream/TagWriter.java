@@ -91,13 +91,6 @@ public final class TagWriter implements Closeable {
                 throw new RuntimeException("Popped one too many times!");
             return next;
         }
-
-        @Override
-        public String toString() {
-            return "Context{" +
-                    "mode=" + mode +
-                    "}@" + Integer.toHexString(hashCode());
-        }
     }
 
     public TagWriter(@NotNull TagStreamHandler streamHandler, @NotNull OutputStream out) {
@@ -105,7 +98,7 @@ public final class TagWriter implements Closeable {
         this.out = out;
         ctx = new Context(Mode.ROOT_UNDETERMINED, null);
     }
-    
+
     private void pushCtx(@NotNull Mode mode) throws IOException {
         value(mode.type, () -> { });
         ctx = ctx.push(mode);
@@ -206,9 +199,25 @@ public final class TagWriter implements Closeable {
             throw new InternalError("Unhandled context mode " + ctx.mode);
         }
         if (list) {
+            boolean matches = ctx.listType == type;
+            if (!matches) {
+                switch (ctx.listType) {
+                case BYTE:
+                    matches = type == TagType.BYTE_ARRAY;
+                    break;
+                case INT:
+                    matches = type == TagType.INT_ARRAY;
+                    break;
+                case LONG:
+                    matches = type == TagType.LONG_ARRAY;
+                    break;
+                default:
+                    break;
+                }
+            }
             if (ctx.listType == TagType.END)
                 ctx.listType = type;
-            else if (ctx.listType != type)
+            else if (!matches)
                 throw new MalformedTagException("Tried to add " + type + " to list of " + ctx.listType);
             ctx.write(write);
             ctx.listSize += size;
