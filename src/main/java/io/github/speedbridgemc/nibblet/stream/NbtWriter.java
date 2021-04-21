@@ -228,46 +228,46 @@ public final class NbtWriter implements Closeable {
         value(type, write, 1);
     }
 
-    public @NotNull NbtWriter value(byte value) throws IOException {
+    public @NotNull NbtWriter byteValue(byte value) throws IOException {
         value(NbtType.BYTE, () -> out.write(value));
         return this;
     }
 
-    public @NotNull NbtWriter value(boolean value) throws IOException {
-        return value((byte) (value ? 1 : 0));
+    public @NotNull NbtWriter booleanValue(boolean value) throws IOException {
+        return byteValue((byte) (value ? 1 : 0));
     }
 
-    public @NotNull NbtWriter value(short value) throws IOException {
+    public @NotNull NbtWriter shortValue(short value) throws IOException {
         value(NbtType.SHORT, () -> streamHandler.writeShort(out, value));
         return this;
     }
 
-    public @NotNull NbtWriter value(int value) throws IOException {
+    public @NotNull NbtWriter intValue(int value) throws IOException {
         value(NbtType.INT, () -> streamHandler.writeInt(out, value));
         return this;
     }
 
-    public @NotNull NbtWriter value(long value) throws IOException {
+    public @NotNull NbtWriter longValue(long value) throws IOException {
         value(NbtType.LONG, () -> streamHandler.writeLong(out, value));
         return this;
     }
 
-    public @NotNull NbtWriter value(float value) throws IOException {
+    public @NotNull NbtWriter floatValue(float value) throws IOException {
         value(NbtType.FLOAT, () -> streamHandler.writeFloat(out, value));
         return this;
     }
 
-    public @NotNull NbtWriter value(double value) throws IOException {
+    public @NotNull NbtWriter doubleValue(double value) throws IOException {
         value(NbtType.DOUBLE, () -> streamHandler.writeDouble(out, value));
         return this;
     }
 
-    public @NotNull NbtWriter value(@NotNull String value) throws IOException {
+    public @NotNull NbtWriter stringValue(@NotNull String value) throws IOException {
         value(NbtType.STRING, () -> string(value));
         return this;
     }
 
-    public @NotNull NbtWriter values(byte @NotNull ... values) throws IOException {
+    public @NotNull NbtWriter byteValues(byte @NotNull ... values) throws IOException {
         final byte[] valuesCopy = values.clone();
         value(NbtType.BYTE_ARRAY, () -> {
             for (byte value : valuesCopy)
@@ -276,7 +276,7 @@ public final class NbtWriter implements Closeable {
         return this;
     }
 
-    public @NotNull NbtWriter values(int @NotNull ... values) throws IOException {
+    public @NotNull NbtWriter intValues(int @NotNull ... values) throws IOException {
         final int[] valuesCopy = values.clone();
         value(NbtType.INT_ARRAY, () -> {
             for (int value : valuesCopy)
@@ -285,7 +285,7 @@ public final class NbtWriter implements Closeable {
         return this;
     }
 
-    public @NotNull NbtWriter values(long @NotNull ... values) throws IOException {
+    public @NotNull NbtWriter longValues(long @NotNull ... values) throws IOException {
         final long[] valuesCopy = values.clone();
         value(NbtType.LONG_ARRAY, () -> {
             for (long value : valuesCopy)

@@ -40,11 +40,11 @@ public final class NbtIO {
         @NotNull NbtType elementType();
     }
 
-    private static final class NamedCompoundelement implements Named<NbtObject> {
+    private static final class NamedNbtObject implements Named<NbtObject> {
         private final @NotNull NbtObject element;
         private final @NotNull String name;
 
-        private NamedCompoundelement(@NotNull NbtObject element, @NotNull String name) {
+        private NamedNbtObject(@NotNull NbtObject element, @NotNull String name) {
             this.element = element;
             this.name = name;
         }
@@ -65,11 +65,11 @@ public final class NbtIO {
         }
     }
 
-    private static final class NamedListelement implements Named<NbtList> {
+    private static final class NamedNbtList implements Named<NbtList> {
         private final @NotNull NbtList element;
         private final @NotNull String name;
 
-        private NamedListelement(@NotNull NbtList element, @NotNull String name) {
+        private NamedNbtList(@NotNull NbtList element, @NotNull String name) {
             this.element = element;
             this.name = name;
         }
@@ -110,20 +110,20 @@ public final class NbtIO {
         }
     }
 
-    private static @NotNull NamedListelement readRootList(@NotNull NbtReader reader) throws IOException {
+    private static @NotNull NbtIO.NamedNbtList readRootList(@NotNull NbtReader reader) throws IOException {
         String rootName = reader.nextName();
         reader.beginRootList();
-        NbtList listelement = NbtList.of(readElement(reader, reader.listItemType()));
+        NbtList listElem = NbtList.of(readElement(reader, reader.listItemType()));
         reader.endRootList();
-        return new NamedListelement(listelement, rootName);
+        return new NamedNbtList(listElem, rootName);
     }
 
-    private static @NotNull NamedCompoundelement readRootCompound(@NotNull NbtReader reader) throws IOException {
+    private static @NotNull NbtIO.NamedNbtObject readRootCompound(@NotNull NbtReader reader) throws IOException {
         reader.beginCompound();
         String rootName = reader.nextName();
-        NbtObject rootelement = readCompound(reader);
+        NbtObject objElem = readCompound(reader);
         reader.endCompound();
-        return new NamedCompoundelement(rootelement, rootName);
+        return new NamedNbtObject(objElem, rootName);
     }
 
     private static @NotNull NbtElement readElement(@NotNull NbtReader reader, @NotNull NbtType type) throws IOException {
@@ -142,39 +142,39 @@ public final class NbtIO {
             return NbtDouble.of(reader.nextDouble());
         case BYTE_ARRAY:
             reader.beginByteArray();
-            byte[] bArr = new byte[reader.listSize()];
+            byte[] byteArr = new byte[reader.listSize()];
             for (int i = 0; reader.listHasNext(); i++)
-                bArr[i] = reader.nextByte();
+                byteArr[i] = reader.nextByte();
             reader.endByteArray();
-            return NbtByteArray.copyOf(bArr);
+            return NbtByteArray.copyOf(byteArr);
         case STRING:
             return NbtString.of(reader.nextString());
         case LIST:
             reader.beginList();
-            NbtList.Builder lBuilder = NbtList.builder(reader.listSize());
+            NbtList.Builder listBuilder = NbtList.builder(reader.listSize());
             while (reader.listHasNext())
-                lBuilder.add(readElement(reader, reader.listItemType()));
+                listBuilder.add(readElement(reader, reader.listItemType()));
             reader.endList();
-            return lBuilder.build();
+            return listBuilder.build();
         case COMPOUND:
             reader.beginCompound();
-            NbtObject celement = readCompound(reader);
+            NbtObject objElem = readCompound(reader);
             reader.endCompound();
-            return celement;
+            return objElem;
         case INT_ARRAY:
             reader.beginIntArray();
-            int[] iArr = new int[reader.listSize()];
+            int[] intArr = new int[reader.listSize()];
             for (int i = 0; reader.listHasNext(); i++)
-                iArr[i] = reader.nextInt();
+                intArr[i] = reader.nextInt();
             reader.endIntArray();
-            return NbtIntArray.copyOf(iArr);
+            return NbtIntArray.copyOf(intArr);
         case LONG_ARRAY:
             reader.beginLongArray();
-            long[] lArr = new long[reader.listSize()];
+            long[] longArr = new long[reader.listSize()];
             for (int i = 0; reader.listHasNext(); i++)
-                lArr[i] = reader.nextLong();
+                longArr[i] = reader.nextLong();
             reader.endLongArray();
-            return NbtLongArray.copyOf(lArr);
+            return NbtLongArray.copyOf(longArr);
         default:
             throw new MalformedNbtException("Unreadable element type " + type);
         }
@@ -235,32 +235,32 @@ public final class NbtIO {
     private static void writeElement(@NotNull NbtWriter writer, @NotNull NbtElement element) throws IOException {
         switch (element.type()) {
         case BYTE:
-            writer.value(((NbtByte) element).value());
+            writer.byteValue(((NbtByte) element).value());
             break;
         case SHORT:
-            writer.value(((NbtShort) element).value());
+            writer.shortValue(((NbtShort) element).value());
             break;
         case INT:
-            writer.value(((NbtInt) element).value());
+            writer.intValue(((NbtInt) element).value());
             break;
         case LONG:
-            writer.value(((NbtLong) element).value());
+            writer.longValue(((NbtLong) element).value());
             break;
         case FLOAT:
-            writer.value(((NbtFloat) element).value());
+            writer.floatValue(((NbtFloat) element).value());
             break;
         case DOUBLE:
-            writer.value(((NbtDouble) element).value());
+            writer.doubleValue(((NbtDouble) element).value());
             break;
         case BYTE_ARRAY:
-            NbtByteArrayView baelement = (NbtByteArrayView) element;
+            NbtByteArrayView byteArrElem = (NbtByteArrayView) element;
             writer.beginByteArray();
-            for (int i = 0, size = baelement.length(); i < size; i++)
-                writer.value(baelement.get(i));
+            for (int i = 0, size = byteArrElem.length(); i < size; i++)
+                writer.byteValue(byteArrElem.get(i));
             writer.endByteArray();
             break;
         case STRING:
-            writer.value(((NbtString) element).value());
+            writer.stringValue(((NbtString) element).value());
             break;
         case LIST:
             writeList(writer, (NbtListView) element);
@@ -269,17 +269,17 @@ public final class NbtIO {
             writeCompound(writer, (NbtObjectView) element);
             break;
         case INT_ARRAY:
-            NbtIntArrayView iaelement = (NbtIntArrayView) element;
+            NbtIntArrayView intArrElem = (NbtIntArrayView) element;
             writer.beginIntArray();
-            for (int i = 0, size = iaelement.length(); i < size; i++)
-                writer.value(iaelement.get(i));
+            for (int i = 0, size = intArrElem.length(); i < size; i++)
+                writer.intValue(intArrElem.get(i));
             writer.endIntArray();
             break;
         case LONG_ARRAY:
-            NbtLongArrayView laelement = (NbtLongArrayView) element;
+            NbtLongArrayView longArrElem = (NbtLongArrayView) element;
             writer.beginLongArray();
-            for (int i = 0, size = laelement.length(); i < size; i++)
-                writer.value(laelement.get(i));
+            for (int i = 0, size = longArrElem.length(); i < size; i++)
+                writer.longValue(longArrElem.get(i));
             writer.endLongArray();
             break;
         default:
