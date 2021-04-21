@@ -4,50 +4,50 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public final class ByteArrayTag implements Tag, ByteArrayTagView {
+public final class NbtByteArray implements NbtElement, NbtByteArrayView {
     private final ArrayList<Byte> backingList;
-    private final ByteArrayTagView view;
+    private final NbtByteArrayView view;
 
-    private ByteArrayTag(ArrayList<Byte> backingList) {
+    private NbtByteArray(ArrayList<Byte> backingList) {
         this.backingList = backingList;
-        view = new ByteArrayTagView() {
+        view = new NbtByteArrayView() {
             @Override
             public int length() {
-                return ByteArrayTag.this.length();
+                return NbtByteArray.this.length();
             }
 
             @Override
             public byte get(int i) {
-                return ByteArrayTag.this.get(i);
+                return NbtByteArray.this.get(i);
             }
         };
     }
 
-    private ByteArrayTag() {
+    private NbtByteArray() {
         this(new ArrayList<>());
     }
 
-    private ByteArrayTag(int initialCapacity) {
+    private NbtByteArray(int initialCapacity) {
         this(new ArrayList<>(initialCapacity));
     }
 
-    public static @NotNull ByteArrayTag create() {
-        return new ByteArrayTag();
+    public static @NotNull NbtByteArray create() {
+        return new NbtByteArray();
     }
 
-    public static @NotNull ByteArrayTag create(int initialCapacity) {
-        return new ByteArrayTag(initialCapacity);
+    public static @NotNull NbtByteArray create(int initialCapacity) {
+        return new NbtByteArray(initialCapacity);
     }
 
-    public static @NotNull ByteArrayTag copyOf(byte @NotNull ... values) {
+    public static @NotNull NbtByteArray copyOf(byte @NotNull ... values) {
         ArrayList<Byte> backingList = new ArrayList<>(values.length);
         for (byte value : values)
             backingList.add(value);
-        return new ByteArrayTag(backingList);
+        return new NbtByteArray(backingList);
     }
 
     @Override
-    public @NotNull ByteArrayTagView view() {
+    public @NotNull NbtByteArrayView view() {
         return view;
     }
 
@@ -78,7 +78,7 @@ public final class ByteArrayTag implements Tag, ByteArrayTagView {
     }
 
     @Override
-    public @NotNull ByteArrayTag copy() {
-        return new ByteArrayTag(new ArrayList<>(backingList));
+    public @NotNull NbtByteArray copy() {
+        return new NbtByteArray(new ArrayList<>(backingList));
     }
 }

@@ -5,11 +5,11 @@ import java.io.IOException;
 /**
  * Thrown to indicate that an NBT structure is malformed.
  */
-public final class MalformedTagException extends IOException {
+public final class MalformedNbtException extends IOException {
     /**
      * Constructs a {@code MalformedTagException} with no detail message.
      */
-    public MalformedTagException() {
+    public MalformedNbtException() {
         super();
     }
 
@@ -17,7 +17,7 @@ public final class MalformedTagException extends IOException {
      * Constructs a {@code MalformedTagException} with the specified detail message.
      * @param message the detail message
      */
-    public MalformedTagException(String message) {
+    public MalformedNbtException(String message) {
         super(message);
     }
 }

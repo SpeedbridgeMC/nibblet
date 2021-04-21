@@ -2,15 +2,15 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class ShortTag implements NumberTag {
+public final class NbtShort implements NbtNumber {
     private final short value;
 
-    private ShortTag(short value) {
+    private NbtShort(short value) {
         this.value = value;
     }
 
-    public static @NotNull ShortTag of(short value) {
-        return new ShortTag(value);
+    public static @NotNull NbtShort of(short value) {
+        return new NbtShort(value);
     }
 
     public short value() {
@@ -23,12 +23,12 @@ public final class ShortTag implements NumberTag {
     }
 
     @Override
-    public @NotNull TagType type() {
-        return TagType.SHORT;
+    public @NotNull NbtType type() {
+        return NbtType.SHORT;
     }
 
     @Override
-    public @NotNull ShortTag copy() {
+    public @NotNull NbtShort copy() {
         return this;
     }
 }

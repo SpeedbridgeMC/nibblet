@@ -3,9 +3,9 @@ package io.github.speedbridgemc.nibblet;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * The base interface for all <em>tags</em> - in-memory representations of NBT structures.
+ * The base interface for all <em>NBT elements</em> - in-memory representations of NBT structures.
  */
-public interface Tag {
+public interface NbtElement {
     /**
      * An empty array of {@code byte}s.
      */
@@ -23,7 +23,7 @@ public interface Tag {
      * Gets this tag's type.
      * @return tag type
      */
-    @NotNull TagType type();
+    @NotNull NbtType type();
 
     /**
      * Creates a shallow copy of this tag.
@@ -32,7 +32,7 @@ public interface Tag {
      *
      * @return shallow copy of tag
      */
-    @NotNull Tag copy();
+    @NotNull NbtElement copy();
 
     /**
      * Creates a deep copy of this tag.
@@ -41,7 +41,7 @@ public interface Tag {
      *
      * @return deep copy of tag
      */
-    default @NotNull Tag deepCopy() {
+    default @NotNull NbtElement deepCopy() {
         return copy();
     }
 
@@ -52,7 +52,7 @@ public interface Tag {
      *
      * @return immutable view of tag
      */
-    default @NotNull Tag view() {
+    default @NotNull NbtElement view() {
         return this;
     }
 }

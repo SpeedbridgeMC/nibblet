@@ -2,15 +2,15 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public final class FloatTag implements NumberTag {
+public final class NbtFloat implements NbtNumber {
     private final float value;
 
-    private FloatTag(float value) {
+    private NbtFloat(float value) {
         this.value = value;
     }
 
-    public static @NotNull FloatTag of(float value) {
-        return new FloatTag(value);
+    public static @NotNull NbtFloat of(float value) {
+        return new NbtFloat(value);
     }
 
     public float value() {
@@ -23,12 +23,12 @@ public final class FloatTag implements NumberTag {
     }
 
     @Override
-    public @NotNull TagType type() {
-        return TagType.FLOAT;
+    public @NotNull NbtType type() {
+        return NbtType.FLOAT;
     }
 
     @Override
-    public @NotNull FloatTag copy() {
+    public @NotNull NbtFloat copy() {
         return this;
     }
 }

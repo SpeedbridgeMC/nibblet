@@ -2,10 +2,10 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface ByteArrayTagView extends Tag {
+public interface NbtByteArrayView extends NbtElement {
     @Override
-    default @NotNull TagType type() {
-        return TagType.BYTE_ARRAY;
+    default @NotNull NbtType type() {
+        return NbtType.BYTE_ARRAY;
     }
 
     int length();
@@ -19,12 +19,12 @@ public interface ByteArrayTagView extends Tag {
     }
 
     @Override
-    default @NotNull ByteArrayTagView view() {
+    default @NotNull NbtByteArrayView view() {
         return this;
     }
 
     @Override
-    default @NotNull ByteArrayTagView copy() {
+    default @NotNull NbtByteArrayView copy() {
         return this;
     }
 }

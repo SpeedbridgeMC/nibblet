@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface TagStreamHandler {
+public interface NbtStreamHandler {
     short readShort(@NotNull InputStream in) throws IOException;
     int readInt(@NotNull InputStream in) throws IOException;
     long readLong(@NotNull InputStream in) throws IOException;

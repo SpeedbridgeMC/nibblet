@@ -1,7 +1,7 @@
 package io.github.speedbridgemc.nibblet.stream;
 
-import io.github.speedbridgemc.nibblet.MalformedTagException;
-import io.github.speedbridgemc.nibblet.TagType;
+import io.github.speedbridgemc.nibblet.MalformedNbtException;
+import io.github.speedbridgemc.nibblet.NbtType;
 import io.github.speedbridgemc.nibblet.util.ModUTF8Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,7 +10,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class TagReader implements Closeable {
+public final class NbtReader implements Closeable {
     private static final ThreadLocal<byte[]> TL_BUFFER = new ThreadLocal<>();
 
     private static byte @NotNull [] buffer(int length) {
@@ -22,9 +22,9 @@ public final class TagReader implements Closeable {
         return buf;
     }
 
-    private final @NotNull TagStreamHandler streamHandler;
+    private final @NotNull NbtStreamHandler streamHandler;
     private final @NotNull InputStream in;
-    private @Nullable TagType thisType;
+    private @Nullable NbtType thisType;
     private boolean firstByte;
     private @NotNull Context ctx;
     
@@ -37,15 +37,15 @@ public final class TagReader implements Closeable {
     private static final class Context {
         public final @NotNull Mode mode;
         private final @Nullable Context next;
-        public @NotNull TagType type;
-        public @NotNull TagType itemType;
+        public @NotNull NbtType type;
+        public @NotNull NbtType itemType;
         public int itemsRemaining;
 
         private Context(@NotNull Mode mode, @Nullable Context next) {
             this.mode = mode;
             this.next = next;
-            type = TagType.LIST;
-            itemType = TagType.END;
+            type = NbtType.LIST;
+            itemType = NbtType.END;
             itemsRemaining = 0;
         }
         
@@ -60,151 +60,150 @@ public final class TagReader implements Closeable {
         }
     }
 
-    public TagReader(@NotNull TagStreamHandler streamHandler, @NotNull InputStream in) {
+    public NbtReader(@NotNull NbtStreamHandler streamHandler, @NotNull InputStream in) {
         this.streamHandler = streamHandler;
         this.in = in;
         firstByte = true;
         ctx = new Context(Mode.ROOT, null);
     }
 
-    public @NotNull TagType nextType() throws IOException {
+    public @NotNull NbtType nextType() throws IOException {
         byte typeId = (byte) (in.read() & 0xFF);
-        TagType type = TagType.fromId(typeId);
+        NbtType type = NbtType.fromId(typeId);
         if (type == null)
-            throw new MalformedTagException("Unknown tag type ID " + typeId);
+            throw new MalformedNbtException("Unknown tag type ID " + typeId);
         if (firstByte) {
             firstByte = false;
-            if (type == TagType.LIST)
-                type = TagType.ROOT_LIST;
+            if (type == NbtType.LIST)
+                type = NbtType.ROOT_LIST;
         }
         thisType = type;
         return type;
     }
 
-    private void expectType(@NotNull TagType expectedType) throws IOException {
+    private void expectType(@NotNull NbtType expectedType) throws IOException {
         if (ctx.mode == Mode.LIST) {
             if (ctx.itemType == expectedType) {
                 if (--ctx.itemsRemaining < 0)
-                    throw new MalformedTagException("List or array is too small");
+                    throw new MalformedNbtException("List or array is too small");
             } else
-                throw new MalformedTagException("Tried to read " + expectedType + " from list or array of " + ctx.itemType);
-            firstByte = false;
+                throw new MalformedNbtException("Tried to read " + expectedType + " from list or array of " + ctx.itemType);
         } else {
             if (thisType == null)
                 nextType();
             if (thisType != expectedType)
-                throw new MalformedTagException("Expected " + expectedType + ", got " + thisType);
+                throw new MalformedNbtException("Expected " + expectedType + ", got " + thisType);
             thisType = null;
         }
     }
 
     public void beginCompound() throws IOException {
-        expectType(TagType.COMPOUND);
+        expectType(NbtType.COMPOUND);
         ctx = ctx.push(Mode.COMPOUND);
     }
 
     public void endCompound() throws IOException {
         if (ctx.mode != Mode.COMPOUND)
-            throw new MalformedTagException("Not in a compound");
-        expectType(TagType.END);
+            throw new MalformedNbtException("Not in a compound");
+        expectType(NbtType.END);
         ctx = ctx.pop();
     }
 
     public void beginList() throws IOException {
-        expectType(TagType.LIST);
+        expectType(NbtType.LIST);
         ctx = ctx.push(Mode.LIST);
-        ctx.type = TagType.LIST;
+        ctx.type = NbtType.LIST;
         ctx.itemType = nextType();
         ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
-    public @NotNull TagType listItemType() throws IOException {
+    public @NotNull NbtType listItemType() throws IOException {
         if (ctx.mode != Mode.LIST)
-            throw new MalformedTagException("Not in a list or array");
+            throw new MalformedNbtException("Not in a list or array");
         return ctx.itemType;
     }
 
     public int listSize() throws IOException {
         if (ctx.mode != Mode.LIST)
-            throw new MalformedTagException("Not in a list or array");
+            throw new MalformedNbtException("Not in a list or array");
         return ctx.itemsRemaining;
     }
 
     public boolean listHasNext() throws IOException {
         if (ctx.mode != Mode.LIST)
-            throw new MalformedTagException("Not in a list or array");
+            throw new MalformedNbtException("Not in a list or array");
         return ctx.itemsRemaining > 0;
     }
 
     public void endList() throws IOException {
-        if (ctx.type != TagType.LIST)
-            throw new MalformedTagException("Not in a " + TagType.LIST);
+        if (ctx.type != NbtType.LIST)
+            throw new MalformedNbtException("Not in a " + NbtType.LIST);
         if (ctx.itemsRemaining > 0)
-            throw new MalformedTagException("Expected end of list or array");
+            throw new MalformedNbtException("Expected end of list or array");
         ctx = ctx.pop();
     }
 
     public void beginRootList() throws IOException {
-        expectType(TagType.ROOT_LIST);
+        expectType(NbtType.ROOT_LIST);
         ctx = ctx.push(Mode.LIST);
-        ctx.type = TagType.ROOT_LIST;
+        ctx.type = NbtType.ROOT_LIST;
         ctx.itemType = nextType();
         ctx.itemsRemaining = 1;
     }
 
     public void endRootList() throws IOException {
-        if (ctx.type != TagType.ROOT_LIST)
-            throw new MalformedTagException("Not in a " + TagType.ROOT_LIST);
+        if (ctx.type != NbtType.ROOT_LIST)
+            throw new MalformedNbtException("Not in a " + NbtType.ROOT_LIST);
         if (ctx.itemsRemaining > 0)
-            throw new MalformedTagException("Expected end of list or array");
+            throw new MalformedNbtException("Expected end of list or array");
         ctx = ctx.pop();
     }
 
     public void beginByteArray() throws IOException {
-        expectType(TagType.BYTE_ARRAY);
+        expectType(NbtType.BYTE_ARRAY);
         ctx = ctx.push(Mode.LIST);
-        ctx.type = TagType.BYTE_ARRAY;
-        ctx.itemType = TagType.BYTE;
+        ctx.type = NbtType.BYTE_ARRAY;
+        ctx.itemType = NbtType.BYTE;
         ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public void endByteArray() throws IOException {
-        if (ctx.type != TagType.BYTE_ARRAY)
-            throw new MalformedTagException("Not in a " + TagType.BYTE_ARRAY);
+        if (ctx.type != NbtType.BYTE_ARRAY)
+            throw new MalformedNbtException("Not in a " + NbtType.BYTE_ARRAY);
         if (ctx.itemsRemaining > 0)
-            throw new MalformedTagException("Expected end of list or array");
+            throw new MalformedNbtException("Expected end of list or array");
         ctx = ctx.pop();
     }
 
     public void beginIntArray() throws IOException {
-        expectType(TagType.INT_ARRAY);
+        expectType(NbtType.INT_ARRAY);
         ctx = ctx.push(Mode.LIST);
-        ctx.type = TagType.INT_ARRAY;
-        ctx.itemType = TagType.INT;
+        ctx.type = NbtType.INT_ARRAY;
+        ctx.itemType = NbtType.INT;
         ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public void endIntArray() throws IOException {
-        if (ctx.type != TagType.INT_ARRAY)
-            throw new MalformedTagException("Not in a " + TagType.INT_ARRAY);
+        if (ctx.type != NbtType.INT_ARRAY)
+            throw new MalformedNbtException("Not in a " + NbtType.INT_ARRAY);
         if (ctx.itemsRemaining > 0)
-            throw new MalformedTagException("Expected end of list or array");
+            throw new MalformedNbtException("Expected end of list or array");
         ctx = ctx.pop();
     }
 
     public void beginLongArray() throws IOException {
-        expectType(TagType.LONG_ARRAY);
+        expectType(NbtType.LONG_ARRAY);
         ctx = ctx.push(Mode.LIST);
-        ctx.type = TagType.LONG_ARRAY;
-        ctx.itemType = TagType.LONG;
+        ctx.type = NbtType.LONG_ARRAY;
+        ctx.itemType = NbtType.LONG;
         ctx.itemsRemaining = streamHandler.readInt(in);
     }
 
     public void endLongArray() throws IOException {
-        if (ctx.type != TagType.LONG_ARRAY)
-            throw new MalformedTagException("Not in a " + TagType.LONG_ARRAY);
+        if (ctx.type != NbtType.LONG_ARRAY)
+            throw new MalformedNbtException("Not in a " + NbtType.LONG_ARRAY);
         if (ctx.itemsRemaining > 0)
-            throw new MalformedTagException("Expected end of list or array");
+            throw new MalformedNbtException("Expected end of list or array");
         ctx = ctx.pop();
     }
 
@@ -220,7 +219,7 @@ public final class TagReader implements Closeable {
     }
 
     public byte nextByte() throws IOException {
-        expectType(TagType.BYTE);
+        expectType(NbtType.BYTE);
         return (byte) (in.read() & 0xFF);
     }
 
@@ -229,37 +228,37 @@ public final class TagReader implements Closeable {
     }
 
     public short nextShort() throws IOException {
-        expectType(TagType.SHORT);
+        expectType(NbtType.SHORT);
         return streamHandler.readShort(in);
     }
 
     public int nextInt() throws IOException {
-        expectType(TagType.INT);
+        expectType(NbtType.INT);
         return streamHandler.readInt(in);
     }
 
     public long nextLong() throws IOException {
-        expectType(TagType.LONG);
+        expectType(NbtType.LONG);
         return streamHandler.readLong(in);
     }
 
     public float nextFloat() throws IOException {
-        expectType(TagType.FLOAT);
+        expectType(NbtType.FLOAT);
         return streamHandler.readFloat(in);
     }
 
     public double nextDouble() throws IOException {
-        expectType(TagType.DOUBLE);
+        expectType(NbtType.DOUBLE);
         return streamHandler.readDouble(in);
     }
 
     public @NotNull String nextString() throws IOException {
-        expectType(TagType.STRING);
+        expectType(NbtType.STRING);
         return nextName();
     }
 
     public void skipValue() throws IOException {
-        TagType skippedType;
+        NbtType skippedType;
         if (ctx.mode == Mode.LIST)
             skippedType = ctx.itemType;
         else if (thisType != null)
@@ -276,7 +275,7 @@ public final class TagReader implements Closeable {
         switch (skippedType) {
         case BYTE_ARRAY:
             beginByteArray();
-            bytesToSkip = TagType.BYTE.payloadSize() * ctx.itemsRemaining;
+            bytesToSkip = NbtType.BYTE.payloadSize() * ctx.itemsRemaining;
             if (in.skip(bytesToSkip) < bytesToSkip)
                 throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
             ctx.itemsRemaining = 0;
@@ -304,7 +303,7 @@ public final class TagReader implements Closeable {
         case COMPOUND:
             beginCompound();
             skippedType = nextType();
-            while (skippedType != TagType.END) {
+            while (skippedType != NbtType.END) {
                 bytesToSkip = streamHandler.readUTFLength(in);
                 if (in.skip(bytesToSkip) < bytesToSkip)
                     throw new IOException("Failed to skip entire name");
@@ -315,7 +314,7 @@ public final class TagReader implements Closeable {
             break;
         case INT_ARRAY:
             beginIntArray();
-            bytesToSkip = TagType.INT.payloadSize() * ctx.itemsRemaining;
+            bytesToSkip = NbtType.INT.payloadSize() * ctx.itemsRemaining;
             if (in.skip(bytesToSkip) < bytesToSkip)
                 throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
             ctx.itemsRemaining = 0;
@@ -323,7 +322,7 @@ public final class TagReader implements Closeable {
             break;
         case LONG_ARRAY:
             beginLongArray();
-            bytesToSkip = TagType.LONG.payloadSize() * ctx.itemsRemaining;
+            bytesToSkip = NbtType.LONG.payloadSize() * ctx.itemsRemaining;
             if (in.skip(bytesToSkip) < bytesToSkip)
                 throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
             ctx.itemsRemaining = 0;

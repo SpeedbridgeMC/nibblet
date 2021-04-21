@@ -7,23 +7,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-public final class ListTag implements Tag, ListTagView {
+public final class NbtList implements NbtElement, NbtListView {
     public static final class Builder {
-        private final ArrayList<Tag> backingList;
-        private TagType itemType;
+        private final ArrayList<NbtElement> backingList;
+        private NbtType itemType;
 
         private Builder() {
             backingList = new ArrayList<>();
-            itemType = TagType.END;
+            itemType = NbtType.END;
         }
 
         private Builder(int initialCapacity) {
             backingList = new ArrayList<>(initialCapacity);
-            itemType = TagType.END;
+            itemType = NbtType.END;
         }
 
-        public @NotNull Builder add(@NotNull Tag v) {
-            if (itemType == TagType.END)
+        public @NotNull Builder add(@NotNull NbtElement v) {
+            if (itemType == NbtType.END)
                 itemType = v.type();
             else if (itemType != v.type())
                 throw new IllegalArgumentException("Tried to add tag of type " + v.type() + " to list of type " + itemType + "!");
@@ -32,51 +32,51 @@ public final class ListTag implements Tag, ListTagView {
         }
 
         public @NotNull Builder addByte(byte value) {
-            return add(ByteTag.of(value));
+            return add(NbtByte.of(value));
         }
 
         public @NotNull Builder addBoolean(boolean value) {
-            return add(ByteTag.of((byte) (value ? 1 : 0)));
+            return add(NbtByte.of((byte) (value ? 1 : 0)));
         }
 
         public @NotNull Builder addShort(short value) {
-            return add(ShortTag.of(value));
+            return add(NbtShort.of(value));
         }
 
         public @NotNull Builder addInt(int value) {
-            return add(IntTag.of(value));
+            return add(NbtInt.of(value));
         }
 
         public @NotNull Builder addLong(long value) {
-            return add(LongTag.of(value));
+            return add(NbtLong.of(value));
         }
 
         public @NotNull Builder addFloat(float value) {
-            return add(FloatTag.of(value));
+            return add(NbtFloat.of(value));
         }
 
         public @NotNull Builder addDouble(double value) {
-            return add(DoubleTag.of(value));
+            return add(NbtDouble.of(value));
         }
 
         public @NotNull Builder addByteArray(byte @NotNull ... values) {
-            return add(ByteArrayTag.copyOf(values));
+            return add(NbtByteArray.copyOf(values));
         }
 
         public @NotNull Builder addString(@NotNull String value) {
-            return add(StringTag.of(value));
+            return add(NbtString.of(value));
         }
 
         public @NotNull Builder addIntArray(int @NotNull ... values) {
-            return add(IntArrayTag.copyOf(values));
+            return add(NbtIntArray.copyOf(values));
         }
 
         public @NotNull Builder addLongArray(long @NotNull ... values) {
-            return add(LongArrayTag.copyOf(values));
+            return add(NbtLongArray.copyOf(values));
         }
 
-        public @NotNull ListTag build() {
-            return new ListTag(itemType, new ArrayList<>(backingList));
+        public @NotNull NbtList build() {
+            return new NbtList(itemType, new ArrayList<>(backingList));
         }
     }
 
@@ -88,71 +88,71 @@ public final class ListTag implements Tag, ListTagView {
         return new Builder(initialCapacity);
     }
 
-    private final List<Tag> backingList;
-    private TagType itemType;
-    private final ListTagView view;
+    private final List<NbtElement> backingList;
+    private NbtType itemType;
+    private final NbtListView view;
 
-    private ListTag(@NotNull TagType itemType, @NotNull List<@NotNull Tag> backingList) {
+    private NbtList(@NotNull NbtType itemType, @NotNull List<@NotNull NbtElement> backingList) {
         this.backingList = backingList;
         this.itemType = itemType;
-        view = new ListTagView() {
+        view = new NbtListView() {
             @Override
-            public @NotNull TagType itemType() {
-                return ListTag.this.itemType();
+            public @NotNull NbtType itemType() {
+                return NbtList.this.itemType();
             }
 
             @Override
             public int size() {
-                return ListTag.this.size();
+                return NbtList.this.size();
             }
 
             @Override
-            public @NotNull Tag get(int i) {
-                return ListTag.this.get(i).view();
+            public @NotNull NbtElement get(int i) {
+                return NbtList.this.get(i).view();
             }
 
             @Override
-            public @NotNull Iterator<Tag> iterator() {
-                return ListTag.this.iterator();
+            public @NotNull Iterator<NbtElement> iterator() {
+                return NbtList.this.iterator();
             }
         };
     }
 
-    public static @NotNull ListTag create() {
-        return new ListTag(TagType.END, new ArrayList<>());
+    public static @NotNull NbtList create() {
+        return new NbtList(NbtType.END, new ArrayList<>());
     }
 
-    public static @NotNull ListTag create(int initialCapacity) {
-        return new ListTag(TagType.END, new ArrayList<>(initialCapacity));
+    public static @NotNull NbtList create(int initialCapacity) {
+        return new NbtList(NbtType.END, new ArrayList<>(initialCapacity));
     }
 
     @SafeVarargs
-    public static <T extends Tag> @NotNull ListTag of(@NotNull T @NotNull ... values) {
+    public static <T extends NbtElement> @NotNull NbtList of(@NotNull T @NotNull ... values) {
         Builder builder = builder(values.length);
         for (T value : values)
             builder.add(value);
         return builder.build();
     }
 
-    public static <T extends Tag> @NotNull ListTag copyOf(@NotNull Iterable<@NotNull T> values) {
+    public static <T extends NbtElement> @NotNull NbtList copyOf(@NotNull Iterable<@NotNull T> values) {
         Builder builder = builder();
-        for (Tag v : values)
+        for (NbtElement v : values)
             builder.add(v);
         return builder.build();
     }
 
     @Override
-    public @NotNull TagType type() {
-        return TagType.LIST;
+    public @NotNull NbtType type() {
+        return NbtType.LIST;
     }
 
     @Override
-    public @NotNull ListTagView view() {
+    public @NotNull NbtListView view() {
         return view;
     }
 
     @Override
-    public @NotNull TagType itemType() {
+    public @NotNull NbtType itemType() {
         return itemType;
     }
 
@@ -162,140 +162,140 @@ public final class ListTag implements Tag, ListTagView {
     }
 
     @Override
-    public @NotNull Tag get(int i) {
+    public @NotNull NbtElement get(int i) {
         return backingList.get(i);
     }
 
-    private void checkItemType(@NotNull Tag tag) {
-        if (itemType == TagType.END)
-            itemType = tag.type();
-        else if (itemType != tag.type())
-            throw new IllegalArgumentException("Tried to add tag of type " + tag.type() + " to list of type " + itemType + "!");
+    private void checkItemType(@NotNull NbtElement nbt) {
+        if (itemType == NbtType.END)
+            itemType = nbt.type();
+        else if (itemType != nbt.type())
+            throw new IllegalArgumentException("Tried to add tag of type " + nbt.type() + " to list of type " + itemType + "!");
     }
 
-    public @NotNull Tag set(int i, @NotNull Tag v) {
+    public @NotNull NbtElement set(int i, @NotNull NbtElement v) {
         checkItemType(v);
         return backingList.set(i, v);
     }
 
     public void setByte(int i, byte value) {
-        set(i, ByteTag.of(value));
+        set(i, NbtByte.of(value));
     }
 
     public void setBoolean(int i, boolean value) {
-        set(i, ByteTag.of((byte) (value ? 1 : 0)));
+        set(i, NbtByte.of((byte) (value ? 1 : 0)));
     }
 
     public void setShort(int i, short value) {
-        set(i, ShortTag.of(value));
+        set(i, NbtShort.of(value));
     }
 
     public void setInt(int i, int value) {
-        set(i, IntTag.of(value));
+        set(i, NbtInt.of(value));
     }
 
     public void setLong(int i, long value) {
-        set(i, LongTag.of(value));
+        set(i, NbtLong.of(value));
     }
 
     public void setFloat(int i, float value) {
-        set(i, FloatTag.of(value));
+        set(i, NbtFloat.of(value));
     }
 
     public void setDouble(int i, double value) {
-        set(i, DoubleTag.of(value));
+        set(i, NbtDouble.of(value));
     }
 
     public void setByteArray(int i, byte @NotNull ... values) {
-        set(i, ByteArrayTag.copyOf(values));
+        set(i, NbtByteArray.copyOf(values));
     }
 
     public void setString(int i, @NotNull String value) {
-        set(i, StringTag.of(value));
+        set(i, NbtString.of(value));
     }
 
     public void setIntArray(int i, int @NotNull ... values) {
-        set(i, IntArrayTag.copyOf(values));
+        set(i, NbtIntArray.copyOf(values));
     }
 
     public void setLongArray(int i, long @NotNull ... values) {
-        set(i, LongArrayTag.copyOf(values));
+        set(i, NbtLongArray.copyOf(values));
     }
 
-    public boolean add(@NotNull Tag v) {
+    public boolean add(@NotNull NbtElement v) {
         checkItemType(v);
         return backingList.add(v);
     }
 
     public void addByte(byte value) {
-        add(ByteTag.of(value));
+        add(NbtByte.of(value));
     }
 
     public void addBoolean(boolean value) {
-        add(ByteTag.of((byte) (value ? 1 : 0)));
+        add(NbtByte.of((byte) (value ? 1 : 0)));
     }
 
     public void addShort(short value) {
-        add(ShortTag.of(value));
+        add(NbtShort.of(value));
     }
 
     public void addInt(int value) {
-        add(IntTag.of(value));
+        add(NbtInt.of(value));
     }
 
     public void addLong(long value) {
-        add(LongTag.of(value));
+        add(NbtLong.of(value));
     }
 
     public void addFloat(float value) {
-        add(FloatTag.of(value));
+        add(NbtFloat.of(value));
     }
 
     public void addDouble(double value) {
-        add(DoubleTag.of(value));
+        add(NbtDouble.of(value));
     }
 
     public void addByteArray(byte @NotNull ... values) {
-        add(ByteArrayTag.copyOf(values));
+        add(NbtByteArray.copyOf(values));
     }
 
     public void addString(@NotNull String value) {
-        add(StringTag.of(value));
+        add(NbtString.of(value));
     }
 
     public void addIntArray(int @NotNull ... values) {
-        add(IntArrayTag.copyOf(values));
+        add(NbtIntArray.copyOf(values));
     }
 
     public void addLongArray(long @NotNull ... values) {
-        add(LongArrayTag.copyOf(values));
+        add(NbtLongArray.copyOf(values));
     }
 
-    public @NotNull Tag removeAt(int i) {
+    public @NotNull NbtElement removeAt(int i) {
         return backingList.remove(i);
     }
 
-    public boolean remove(@NotNull Tag v) {
+    public boolean remove(@NotNull NbtElement v) {
         return backingList.remove(v);
     }
 
-    public <T extends Tag> boolean addAll(@NotNull Iterable<@NotNull T> values) {
+    public <T extends NbtElement> boolean addAll(@NotNull Iterable<@NotNull T> values) {
         boolean changed = false;
-        for (Tag v : values)
+        for (NbtElement v : values)
             changed |= add(v);
         return changed;
     }
 
     public void clear() {
         backingList.clear();
-        itemType = TagType.END;
+        itemType = NbtType.END;
     }
 
     @NotNull
     @Override
-    public Iterator<Tag> iterator() {
-        return new Iterator<Tag>() {
-            private final Iterator<Tag> delegate = backingList.iterator();
+    public Iterator<NbtElement> iterator() {
+        return new Iterator<NbtElement>() {
+            private final Iterator<NbtElement> delegate = backingList.iterator();
 
             @Override
             public boolean hasNext() {
@@ -303,27 +303,27 @@ public final class ListTag implements Tag, ListTagView {
             }
 
             @Override
-            public Tag next() {
+            public NbtElement next() {
                 return delegate.next();
             }
 
             @Override
-            public void forEachRemaining(Consumer<? super Tag> action) {
+            public void forEachRemaining(Consumer<? super NbtElement> action) {
                 delegate.forEachRemaining(action);
             }
         };
     }
 
     @Override
-    public @NotNull ListTag copy() {
-        return new ListTag(itemType, backingList);
+    public @NotNull NbtList copy() {
+        return new NbtList(itemType, backingList);
     }
 
     @Override
-    public @NotNull ListTag deepCopy() {
-        ListTag.Builder builder = builder(backingList.size());
-        for (Tag tag : this)
-            builder.add(tag);
+    public @NotNull NbtList deepCopy() {
+        NbtList.Builder builder = builder(backingList.size());
+        for (NbtElement nbt : this)
+            builder.add(nbt);
         return builder.build();
     }
 }

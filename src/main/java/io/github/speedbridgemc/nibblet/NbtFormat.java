@@ -1,7 +1,7 @@
 package io.github.speedbridgemc.nibblet;
 
-import io.github.speedbridgemc.nibblet.stream.StandardTagStreamHandler;
-import io.github.speedbridgemc.nibblet.stream.TagStreamHandler;
+import io.github.speedbridgemc.nibblet.stream.StandardNbtStreamHandler;
+import io.github.speedbridgemc.nibblet.stream.NbtStreamHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -10,21 +10,21 @@ import java.io.OutputStream;
 import java.nio.ByteOrder;
 
 /**
- * Represents common tag formats.
+ * Represents common NBT structure formats.
  */
-public enum TagFormats implements TagStreamHandler {
+public enum NbtFormat implements NbtStreamHandler {
     /**
      * The "classic" format used by Java Edition. Big-endian values.
      */
-    JAVA(new StandardTagStreamHandler(ByteOrder.BIG_ENDIAN)),
+    JAVA(new StandardNbtStreamHandler(ByteOrder.BIG_ENDIAN)),
     /**
      * The format used by Bedrock Edition. Little-endian values.
      */
-    BEDROCK(new StandardTagStreamHandler(ByteOrder.LITTLE_ENDIAN));
+    BEDROCK(new StandardNbtStreamHandler(ByteOrder.LITTLE_ENDIAN));
 
-    private final @NotNull TagStreamHandler delegate;
+    private final @NotNull NbtStreamHandler delegate;
 
-    TagFormats(@NotNull TagStreamHandler delegate) {
+    NbtFormat(@NotNull NbtStreamHandler delegate) {
         this.delegate = delegate;
     }
 

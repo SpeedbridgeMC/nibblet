@@ -4,50 +4,50 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public final class LongArrayTag implements Tag, LongArrayTagView {
+public final class NbtLongArray implements NbtElement, NbtLongArrayView {
     private final ArrayList<Long> backingList;
-    private final LongArrayTagView view;
+    private final NbtLongArrayView view;
 
-    private LongArrayTag(@NotNull ArrayList<@NotNull Long> backingList) {
+    private NbtLongArray(@NotNull ArrayList<@NotNull Long> backingList) {
         this.backingList = backingList;
-        view = new LongArrayTagView() {
+        view = new NbtLongArrayView() {
             @Override
             public int length() {
-                return LongArrayTag.this.length();
+                return NbtLongArray.this.length();
             }
 
             @Override
             public long get(int i) {
-                return LongArrayTag.this.get(i);
+                return NbtLongArray.this.get(i);
             }
         };
     }
 
-    private LongArrayTag() {
+    private NbtLongArray() {
         this(new ArrayList<>()) ;
     }
 
-    private LongArrayTag(int initialCapacity) {
+    private NbtLongArray(int initialCapacity) {
         this(new ArrayList<>(initialCapacity));
     }
 
-    public static @NotNull LongArrayTag create() {
-        return new LongArrayTag();
+    public static @NotNull NbtLongArray create() {
+        return new NbtLongArray();
     }
 
-    public static @NotNull LongArrayTag create(int initialCapacity) {
-        return new LongArrayTag(initialCapacity);
+    public static @NotNull NbtLongArray create(int initialCapacity) {
+        return new NbtLongArray(initialCapacity);
     }
 
-    public static @NotNull LongArrayTag copyOf(long @NotNull ... values) {
+    public static @NotNull NbtLongArray copyOf(long @NotNull ... values) {
         ArrayList<Long> list = new ArrayList<>(values.length);
         for (long v : values)
             list.add(v);
-        return new LongArrayTag(list);
+        return new NbtLongArray(list);
     }
 
     @Override
-    public @NotNull LongArrayTagView view() {
+    public @NotNull NbtLongArrayView view() {
         return view;
     }
 
@@ -78,8 +78,8 @@ public final class LongArrayTag implements Tag, LongArrayTagView {
     }
 
     @Override
-    public @NotNull LongArrayTag copy() {
-        return new LongArrayTag(new ArrayList<>(backingList));
+    public @NotNull NbtLongArray copy() {
+        return new NbtLongArray(new ArrayList<>(backingList));
     }
 
 }

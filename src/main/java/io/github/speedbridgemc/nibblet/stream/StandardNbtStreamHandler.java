@@ -9,11 +9,11 @@ import java.io.UTFDataFormatException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class StandardTagStreamHandler implements TagStreamHandler {
+public class StandardNbtStreamHandler implements NbtStreamHandler {
     protected final ByteOrder byteOrder;
     private final ThreadLocal<ByteBuffer> tlScratchBuf;
 
-    public StandardTagStreamHandler(ByteOrder byteOrder) {
+    public StandardNbtStreamHandler(ByteOrder byteOrder) {
         this.byteOrder = byteOrder;
         tlScratchBuf = ThreadLocal.withInitial(() -> {
             ByteBuffer buf = ByteBuffer.allocate(Double.BYTES);

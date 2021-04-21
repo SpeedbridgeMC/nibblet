@@ -1,7 +1,7 @@
 package io.github.speedbridgemc.nibblet.test;
 
 import io.github.speedbridgemc.nibblet.*;
-import io.github.speedbridgemc.nibblet.stream.TagWriter;
+import io.github.speedbridgemc.nibblet.stream.NbtWriter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -17,23 +17,23 @@ public final class Test {
     public static void main(String[] args) {
         Path path = Paths.get(".", "test.nbt").toAbsolutePath().normalize();
         try (OutputStream out = Files.newOutputStream(path)) {
-            TagIO.write("test_root", CompoundTag.builder()
-                    .put("test_nested", CompoundTag.builder()
+            NbtIO.write("test_root", NbtObject.builder()
+                    .put("test_nested", NbtObject.builder()
                             .putString("hello", "world")
                             .build())
                     .putInt("test_int", 24)
-                    .put("test_list", ListTag.builder()
-                            .add(StringTag.of("a"))
-                            .add(StringTag.of("b"))
-                            .add(StringTag.of("c"))
+                    .put("test_list", NbtList.builder()
+                            .add(NbtString.of("a"))
+                            .add(NbtString.of("b"))
+                            .add(NbtString.of("c"))
                             .build())
                     .putIntArray("test_int_array", 1, 2, 3, 4, 5)
-                    .put("test_nested_list", ListTag.builder()
-                            .add(ListTag.of(IntTag.of(1)))
-                            .add(ListTag.of(DoubleTag.of(2)))
-                            .add(ListTag.of(StringTag.of("3")))
+                    .put("test_nested_list", NbtList.builder()
+                            .add(NbtList.of(NbtInt.of(1)))
+                            .add(NbtList.of(NbtDouble.of(2)))
+                            .add(NbtList.of(NbtString.of("3")))
                             .build())
-                    .build(), TagFormats.JAVA, out);
+                    .build(), NbtFormat.JAVA, out);
         } catch (IOException e) {
             System.err.println("Failed to write to \"" + path + "\"!");
             e.printStackTrace();
@@ -41,7 +41,7 @@ public final class Test {
 
         Path pathS = Paths.get(".", "test_stream.nbt").toAbsolutePath().normalize();
         try (OutputStream out = Files.newOutputStream(pathS);
-             TagWriter writer = new TagWriter(TagFormats.BEDROCK, out)) {
+             NbtWriter writer = new NbtWriter(NbtFormat.BEDROCK, out)) {
             writer.name("test_root")
                     .beginCompound()
                     .name("test_nested")
@@ -82,7 +82,7 @@ public final class Test {
 
         Path pathSL = Paths.get(".", "test_stream_list.nbt").toAbsolutePath().normalize();
         try (OutputStream out = Files.newOutputStream(pathSL);
-             TagWriter writer = new TagWriter(TagFormats.BEDROCK, out)) {
+             NbtWriter writer = new NbtWriter(NbtFormat.BEDROCK, out)) {
             writer.name("root_list")
                     .beginList()
                     .value("a")
@@ -95,9 +95,9 @@ public final class Test {
         }
 
         try (InputStream in = Files.newInputStream(path)) {
-            TagIO.Named<?> tag = TagIO.read(TagFormats.JAVA, in);
+            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.JAVA, in);
             System.out.println("Reading from file \"" + path + "\":");
-            printTag(tag.tag(), tag.name(), "");
+            printTag(tag.element(), tag.name(), "");
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + path + "\"");
@@ -105,9 +105,9 @@ public final class Test {
         }
 
         try (InputStream in = Files.newInputStream(pathS)) {
-            TagIO.Named<?> tag = TagIO.read(TagFormats.BEDROCK, in);
+            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK, in);
             System.out.println("Reading from file \"" + pathS + "\":");
-            printTag(tag.tag(), tag.name(), "");
+            printTag(tag.element(), tag.name(), "");
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathS + "\"");
@@ -115,9 +115,9 @@ public final class Test {
         }
 
         try (InputStream in = Files.newInputStream(pathSL)) {
-            TagIO.Named<?> tag = TagIO.read(TagFormats.BEDROCK, in);
+            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK, in);
             System.out.println("Reading from file \"" + pathSL + "\":");
-            printTag(tag.tag(), tag.name(), "");
+            printTag(tag.element(), tag.name(), "");
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathSL + "\"");
@@ -128,38 +128,38 @@ public final class Test {
         Path pathBig = Paths.get(".", "bigtest.nbt").toAbsolutePath().normalize();
         try (InputStream inCompressed = Files.newInputStream(pathBig);
              GZIPInputStream in = new GZIPInputStream(inCompressed)) {
-            TagIO.Named<?> tag = TagIO.read(TagFormats.JAVA, in);
+            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.JAVA, in);
             System.out.println("Reading from file \"" + pathBig + "\":");
-            printTag(tag.tag(), tag.name(), "");
+            printTag(tag.element(), tag.name(), "");
         } catch (IOException e) {
             System.err.print("Failed to read from \"" + pathBig + "\"");
             e.printStackTrace();
         }
     }
 
-    private static void printTag(@NotNull Tag tag, @NotNull String name, @NotNull String indent) {
-        System.out.format("%s%s(%s): ", indent, tag.type(), name.isEmpty() ? "None" : "'" + name + "'");
-        switch (tag.type()) {
+    private static void printTag(@NotNull NbtElement nbt, @NotNull String name, @NotNull String indent) {
+        System.out.format("%s%s(%s): ", indent, nbt.type(), name.isEmpty() ? "None" : "'" + name + "'");
+        switch (nbt.type()) {
         case BYTE:
-            System.out.format("%d%n", ((ByteTag) tag).value());
+            System.out.format("%d%n", ((NbtByte) nbt).value());
             break;
         case SHORT:
-            System.out.format("%d%n", ((ShortTag) tag).value());
+            System.out.format("%d%n", ((NbtShort) nbt).value());
             break;
         case INT:
-            System.out.format("%d%n", ((IntTag) tag).value());
+            System.out.format("%d%n", ((NbtInt) nbt).value());
             break;
         case LONG:
-            System.out.format("%d%n", ((LongTag) tag).value());
+            System.out.format("%d%n", ((NbtLong) nbt).value());
             break;
         case FLOAT:
-            System.out.format("%g%n", ((FloatTag) tag).value());
+            System.out.format("%g%n", ((NbtFloat) nbt).value());
             break;
         case DOUBLE:
-            System.out.format("%g%n", ((DoubleTag) tag).value());
+            System.out.format("%g%n", ((NbtDouble) nbt).value());
             break;
         case BYTE_ARRAY:
-            ByteArrayTagView baTag = (ByteArrayTagView) tag;
+            NbtByteArrayView baTag = (NbtByteArrayView) nbt;
             System.out.print("[");
             for (int i = 0, length = baTag.length(); i < length; i++) {
                 System.out.format("%d", baTag.get(i));
@@ -169,24 +169,24 @@ public final class Test {
             System.out.println("]");
             break;
         case STRING:
-            System.out.format("'%s'%n", ((StringTag) tag).value());
+            System.out.format("'%s'%n", ((NbtString) nbt).value());
             break;
         case LIST:
-            ListTagView listTag = (ListTagView) tag;
+            NbtListView listTag = (NbtListView) nbt;
             System.out.format("%s%n%s{%n", entryCount(listTag.size()), indent);
-            for (Tag item : listTag)
+            for (NbtElement item : listTag)
                 printTag(item, "", indent + "  ");
             System.out.format("%s}%n", indent);
             break;
         case COMPOUND:
-            CompoundTagView compoundTag = (CompoundTagView) tag;
+            NbtObjectView compoundTag = (NbtObjectView) nbt;
             System.out.format("%s%n%s{%n", entryCount(compoundTag.size()), indent);
-            for (Map.Entry<String, Tag> entry : compoundTag.entries())
+            for (Map.Entry<String, NbtElement> entry : compoundTag.entries())
                 printTag(entry.getValue(), entry.getKey(), indent + "  ");
             System.out.format("%s}%n", indent);
             break;
         case INT_ARRAY:
-            IntArrayTagView iaTag = (IntArrayTagView) tag;
+            NbtIntArrayView iaTag = (NbtIntArrayView) nbt;
             System.out.print("[");
             for (int i = 0, length = iaTag.length(); i < length; i++) {
                 System.out.format("%d", iaTag.get(i));
@@ -196,7 +196,7 @@ public final class Test {
             System.out.println("]");
             break;
         case LONG_ARRAY:
-            LongArrayTagView laTag = (LongArrayTagView) tag;
+            NbtLongArrayView laTag = (NbtLongArrayView) nbt;
             System.out.print("[");
             for (int i = 0, length = laTag.length(); i < length; i++) {
                 System.out.format("%d", laTag.get(i));
@@ -206,7 +206,7 @@ public final class Test {
             System.out.println("]");
             break;
         default:
-            throw new RuntimeException("Unprintable tag type " + tag.type());
+            throw new RuntimeException("Unprintable tag type " + nbt.type());
         }
     }
 
