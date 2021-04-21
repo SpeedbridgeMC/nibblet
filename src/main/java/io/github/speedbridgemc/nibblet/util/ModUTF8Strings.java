@@ -2,7 +2,6 @@ package io.github.speedbridgemc.nibblet.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.io.UTFDataFormatException;
 
 /**
@@ -139,7 +138,6 @@ public final class ModUTF8Strings {
      * Encodes a string into the modified UTF-8 format.
      * @param value string
      * @return encode result
-     * @throws IOException if an I/O error occurs.
      */
     public static @NotNull EncodeResult encode(@NotNull String value) {
         final int strlen = value.length();
