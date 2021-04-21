@@ -22,12 +22,19 @@ public final class NbtList implements NbtElement, NbtListView {
             itemType = NbtType.END;
         }
 
-        public @NotNull Builder add(@NotNull NbtElement v) {
+        public @NotNull Builder add(@NotNull NbtElement value) {
             if (itemType == NbtType.END)
-                itemType = v.type();
-            else if (itemType != v.type())
-                throw new IllegalArgumentException("Tried to add tag of type " + v.type() + " to list of type " + itemType + "!");
-            backingList.add(v);
+                itemType = value.type();
+            else if (itemType != value.type())
+                throw new IllegalArgumentException("Tried to add tag of type " + value.type() + " to list of type " + itemType + "!");
+            backingList.add(value);
+            return this;
+        }
+
+        @SafeVarargs
+        public final <T extends NbtElement> @NotNull Builder add(@NotNull T @NotNull ... values) {
+            for (T value : values)
+                add(value);
             return this;
         }
 

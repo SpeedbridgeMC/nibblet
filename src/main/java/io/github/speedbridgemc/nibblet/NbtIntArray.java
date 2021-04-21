@@ -5,6 +5,41 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public final class NbtIntArray implements NbtElement, NbtIntArrayView {
+    public static final class Builder {
+        private final ArrayList<Integer> backingList;
+
+        private Builder() {
+            backingList = new ArrayList<>();
+        }
+
+        private Builder(int initialCapacity) {
+            backingList = new ArrayList<>(initialCapacity);
+        }
+
+        public @NotNull Builder add(int value) {
+            backingList.add(value);
+            return this;
+        }
+
+        public @NotNull Builder add(int @NotNull ... values) {
+            for (int value : values)
+                backingList.add(value);
+            return this;
+        }
+
+        public @NotNull NbtIntArray build() {
+            return new NbtIntArray(backingList);
+        }
+    }
+
+    public static @NotNull Builder builder() {
+        return new Builder();
+    }
+
+    public static @NotNull Builder builder(int initialCapacity) {
+        return new Builder(initialCapacity);
+    }
+
     private final ArrayList<Integer> backingList;
     private final NbtIntArrayView view;
 

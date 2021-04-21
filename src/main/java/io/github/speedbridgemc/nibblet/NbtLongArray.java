@@ -5,6 +5,41 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public final class NbtLongArray implements NbtElement, NbtLongArrayView {
+    public static final class Builder {
+        private final ArrayList<Long> backingList;
+
+        private Builder() {
+            backingList = new ArrayList<>();
+        }
+
+        private Builder(int initialCapacity) {
+            backingList = new ArrayList<>(initialCapacity);
+        }
+
+        public @NotNull Builder add(long value) {
+            backingList.add(value);
+            return this;
+        }
+
+        public @NotNull Builder add(long @NotNull ... values) {
+            for (long value : values)
+                backingList.add(value);
+            return this;
+        }
+
+        public @NotNull NbtLongArray build() {
+            return new NbtLongArray(backingList);
+        }
+    }
+
+    public static @NotNull Builder builder() {
+        return new Builder();
+    }
+
+    public static @NotNull Builder builder(int initialCapacity) {
+        return new Builder(initialCapacity);
+    }
+
     private final ArrayList<Long> backingList;
     private final NbtLongArrayView view;
 

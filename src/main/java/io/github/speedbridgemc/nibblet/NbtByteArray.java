@@ -5,6 +5,41 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 public final class NbtByteArray implements NbtElement, NbtByteArrayView {
+    public static final class Builder {
+        private final ArrayList<Byte> backingList;
+
+        private Builder() {
+            backingList = new ArrayList<>();
+        }
+
+        private Builder(int initialCapacity) {
+            backingList = new ArrayList<>(initialCapacity);
+        }
+
+        public @NotNull Builder add(byte value) {
+            backingList.add(value);
+            return this;
+        }
+
+        public @NotNull Builder add(byte @NotNull ... values) {
+            for (byte value : values)
+                backingList.add(value);
+            return this;
+        }
+
+        public @NotNull NbtByteArray build() {
+            return new NbtByteArray(backingList);
+        }
+    }
+
+    public static @NotNull Builder builder() {
+        return new Builder();
+    }
+
+    public static @NotNull Builder builder(int initialCapacity) {
+        return new Builder(initialCapacity);
+    }
+
     private final ArrayList<Byte> backingList;
     private final NbtByteArrayView view;
 
