@@ -46,7 +46,7 @@ public final class ModUTF8Strings {
                 c2 = src[count - 1];
                 if ((c2 & 0xC0) != 0x80)
                     throw new UTFDataFormatException("Malformed input around byte " + count);
-                dest.append((char) ((c1 & 0x1F) << 6) | (c2 & 0x3F));
+                dest.append((char) (((c1 & 0x1F) << 6) | (c2 & 0x3F)));
             } else if (m == 14) {
                 // 0b1110xxxx 0b10xxxxxx 0b10xxxxxx
                 count += 3;
@@ -56,7 +56,7 @@ public final class ModUTF8Strings {
                 c3 = src[count - 1];
                 if ((c2 & 0xC0) != 0x80 || (c3 & 0xC0) != 0x80)
                     throw new UTFDataFormatException("Malformed input around byte " + (count - 1));
-                dest.append((char) ((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F));
+                dest.append((char) (((c1 & 0x0F) << 12) | ((c2 & 0x3F) << 6) | (c3 & 0x3F)));
             } else
                 throw new UTFDataFormatException("Malformed input around byte " + count);
         }
