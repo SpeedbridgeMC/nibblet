@@ -17,8 +17,8 @@ public interface NbtObjectView extends NbtRootElement {
     @Nullable NbtElement get(@NotNull String name);
     boolean containsName(@NotNull String name);
     boolean containsValue(@NotNull NbtElement value);
-    @NotNull Set<@NotNull String> names();
-    @NotNull Set<Map.@NotNull Entry<@NotNull String, @NotNull NbtElement>> entries();
+    @NotNull Iterable<@NotNull String> names();
+    @NotNull Iterable<Map.@NotNull Entry<@NotNull String, @NotNull NbtElement>> entries();
 
     default byte getByte(@NotNull String name, byte defaultValue) {
         NbtElement nbt = get(name);

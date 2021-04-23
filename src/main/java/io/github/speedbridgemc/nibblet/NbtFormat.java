@@ -1,5 +1,6 @@
 package io.github.speedbridgemc.nibblet;
 
+import io.github.speedbridgemc.nibblet.stream.BedrockNetworkNbtStreamHandler;
 import io.github.speedbridgemc.nibblet.stream.StandardNbtStreamHandler;
 import io.github.speedbridgemc.nibblet.stream.NbtStreamHandler;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,19 @@ public enum NbtFormat implements NbtStreamHandler {
     /**
      * The format used by Bedrock Edition. Little-endian values.
      */
-    BEDROCK(new StandardNbtStreamHandler(ByteOrder.LITTLE_ENDIAN));
+    BEDROCK(new StandardNbtStreamHandler(ByteOrder.LITTLE_ENDIAN)),
+    /**
+     * The format used by Bedrock Edition's networking code. Not used for files, obviously.
+     * <ul>
+     *     <li><a href="https://developers.google.com/protocol-buffers/docs/encoding#signed_integers">ZigZag</a>
+     *     VarInt encoding for {@code TAG_Int} values.</li>
+     *     <li><a href="https://developers.google.com/protocol-buffers/docs/encoding#signed_integers">ZigZag</a>
+     *     VarLong encoding for {@code TAG_Long} values.</li>
+     *      <li>VarInt encoding for string length prefixes (names and {@code TAG_String} values).</li>
+     *      <li>Little-endian encoding for all other values.</li>
+     * </ul>
+     */
+    BEDROCK_NETWORK(new BedrockNetworkNbtStreamHandler());
 
     private final @NotNull NbtStreamHandler delegate;
 

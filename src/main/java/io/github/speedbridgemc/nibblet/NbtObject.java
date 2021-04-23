@@ -117,12 +117,12 @@ public final class NbtObject implements NbtElement, NbtObjectView {
             }
 
             @Override
-            public @NotNull Set<@NotNull String> names() {
+            public @NotNull Iterable<@NotNull String> names() {
                 return NbtObject.this.names();
             }
 
             @Override
-            public @NotNull Set<Map.@NotNull Entry<@NotNull String, @NotNull NbtElement>> entries() {
+            public @NotNull Iterable<Map.@NotNull Entry<@NotNull String, @NotNull NbtElement>> entries() {
                 return NbtObject.this.entries();
             }
         };
@@ -179,12 +179,12 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     }
 
     @Override
-    public @NotNull Set<String> names() {
+    public @NotNull Iterable<String> names() {
         return nameSet;
     }
 
     @Override
-    public @NotNull Set<Map.Entry<String, NbtElement>> entries() {
+    public @NotNull Iterable<Map.Entry<String, NbtElement>> entries() {
         if (entrySet == null)
             entrySet = Collections.unmodifiableMap(backingMap).entrySet();
         return entrySet;

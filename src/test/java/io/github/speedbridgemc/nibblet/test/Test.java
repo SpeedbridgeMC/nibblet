@@ -94,6 +94,22 @@ public final class Test {
             e.printStackTrace();
         }
 
+        Path pathNet = Paths.get(".", "test_network.nbt").toAbsolutePath().normalize();
+        try (OutputStream out = Files.newOutputStream(pathNet);
+             NbtWriter writer = new NbtWriter(NbtFormat.BEDROCK_NETWORK, out)) {
+            writer.name("net_test")
+                    .beginCompound()
+                    .name("zero").intValue(0)
+                    .name("negative_one").intValue(-1)
+                    .name("positive_one").intValue(1)
+                    .name("negative_two").longValue(-2)
+                    .name("positive_two").longValue(2)
+                    .endCompound();
+        } catch (IOException e) {
+            System.err.println("Failed to write to \"" + pathNet + "\"!");
+            e.printStackTrace();
+        }
+
         try (InputStream in = Files.newInputStream(path)) {
             NbtIO.Named<?> tag = NbtIO.read(NbtFormat.JAVA, in);
             System.out.println("Reading from file \"" + path + "\":");
@@ -121,6 +137,16 @@ public final class Test {
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathSL + "\"");
+            e.printStackTrace();
+        }
+
+        try (InputStream in = Files.newInputStream(pathNet)) {
+            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK_NETWORK, in);
+            System.out.println("Reading from file \"" + pathNet + "\":");
+            printTag(tag.element(), tag.name(), "");
+            System.out.println();
+        } catch (IOException e) {
+            System.err.println("Failed to read from \"" + pathNet + "\"");
             e.printStackTrace();
         }
 
@@ -159,10 +185,10 @@ public final class Test {
             System.out.format("%g%n", ((NbtDouble) nbt).value());
             break;
         case BYTE_ARRAY:
-            NbtByteArrayView baTag = (NbtByteArrayView) nbt;
+            NbtByteArrayView nbtByteArr = (NbtByteArrayView) nbt;
             System.out.print("[");
-            for (int i = 0, length = baTag.length(); i < length; i++) {
-                System.out.format("%d", baTag.get(i));
+            for (int i = 0, length = nbtByteArr.length(); i < length; i++) {
+                System.out.format("%d", nbtByteArr.get(i));
                 if (i < length - 1)
                     System.out.print(", ");
             }
@@ -172,34 +198,34 @@ public final class Test {
             System.out.format("'%s'%n", ((NbtString) nbt).value());
             break;
         case LIST:
-            NbtListView listTag = (NbtListView) nbt;
-            System.out.format("%s%n%s{%n", entryCount(listTag.size()), indent);
-            for (NbtElement item : listTag)
+            NbtListView nbtList = (NbtListView) nbt;
+            System.out.format("%s%n%s{%n", entryCount(nbtList.size()), indent);
+            for (NbtElement item : nbtList)
                 printTag(item, "", indent + "  ");
             System.out.format("%s}%n", indent);
             break;
         case COMPOUND:
-            NbtObjectView compoundTag = (NbtObjectView) nbt;
-            System.out.format("%s%n%s{%n", entryCount(compoundTag.size()), indent);
-            for (Map.Entry<String, NbtElement> entry : compoundTag.entries())
+            NbtObjectView nbtObj = (NbtObjectView) nbt;
+            System.out.format("%s%n%s{%n", entryCount(nbtObj.size()), indent);
+            for (Map.Entry<String, NbtElement> entry : nbtObj.entries())
                 printTag(entry.getValue(), entry.getKey(), indent + "  ");
             System.out.format("%s}%n", indent);
             break;
         case INT_ARRAY:
-            NbtIntArrayView iaTag = (NbtIntArrayView) nbt;
+            NbtIntArrayView nbtIntArr = (NbtIntArrayView) nbt;
             System.out.print("[");
-            for (int i = 0, length = iaTag.length(); i < length; i++) {
-                System.out.format("%d", iaTag.get(i));
+            for (int i = 0, length = nbtIntArr.length(); i < length; i++) {
+                System.out.format("%d", nbtIntArr.get(i));
                 if (i < length - 1)
                     System.out.print(", ");
             }
             System.out.println("]");
             break;
         case LONG_ARRAY:
-            NbtLongArrayView laTag = (NbtLongArrayView) nbt;
+            NbtLongArrayView nbtLongTag = (NbtLongArrayView) nbt;
             System.out.print("[");
-            for (int i = 0, length = laTag.length(); i < length; i++) {
-                System.out.format("%d", laTag.get(i));
+            for (int i = 0, length = nbtLongTag.length(); i < length; i++) {
+                System.out.format("%d", nbtLongTag.get(i));
                 if (i < length - 1)
                     System.out.print(", ");
             }

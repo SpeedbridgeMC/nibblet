@@ -9,7 +9,8 @@ import java.util.HashMap;
  */
 public enum NbtType {
     /**
-     * {@code TAG_End} - End of a {@link #COMPOUND} element. Also used for the item type of empty {@link #LIST}s.
+     * {@code TAG_End} - Effectively acts as a "null type" of sorts.<p>
+     * Marks the end of a {@link #COMPOUND} element. Also used for the item type of empty {@link #LIST}s.
      */
     END((byte) 0, "TAG_End", 0),
     /**
