@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 
 /**
  * Provides methods to read and write NBT binaries.
@@ -218,9 +217,9 @@ public final class NbtIO {
 
     private static void writeCompound(@NotNull NbtWriter writer, @NotNull NbtObjectView element) throws IOException {
         writer.beginCompound();
-        for (Map.Entry<String, NbtElement> entry : element.entries()) {
-            writer.name(entry.getKey());
-            writeElement(writer, entry.getValue());
+        for (NbtObjectView.Entry entry : element.entries()) {
+            writer.name(entry.name());
+            writeElement(writer, entry.element());
         }
         writer.endCompound();
     }

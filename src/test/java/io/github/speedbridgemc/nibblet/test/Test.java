@@ -207,8 +207,8 @@ public final class Test {
         case COMPOUND:
             NbtObjectView nbtObj = (NbtObjectView) nbt;
             System.out.format("%s%n%s{%n", entryCount(nbtObj.size()), indent);
-            for (Map.Entry<String, NbtElement> entry : nbtObj.entries())
-                printTag(entry.getValue(), entry.getKey(), indent + "  ");
+            for (NbtObjectView.Entry entry : nbtObj.entries())
+                printTag(entry.element(), entry.name(), indent + "  ");
             System.out.format("%s}%n", indent);
             break;
         case INT_ARRAY:

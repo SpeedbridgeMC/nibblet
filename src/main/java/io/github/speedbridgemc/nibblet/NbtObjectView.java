@@ -3,10 +3,31 @@ package io.github.speedbridgemc.nibblet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.Set;
-
 public interface NbtObjectView extends NbtRootElement {
+    final class Entry {
+        private final @NotNull String name;
+        private final @NotNull NbtElement element;
+        private final @NotNull NbtType elementType;
+
+        public Entry(@NotNull String name, @NotNull NbtElement element) {
+            this.name = name;
+            this.element = element;
+            elementType = element.type();
+        }
+
+        public @NotNull String name() {
+            return name;
+        }
+
+        public @NotNull NbtElement element() {
+            return element;
+        }
+
+        public @NotNull NbtType elementType() {
+            return elementType;
+        }
+    }
+
     @Override
     default @NotNull NbtType type() {
         return NbtType.COMPOUND;
@@ -16,9 +37,9 @@ public interface NbtObjectView extends NbtRootElement {
     boolean isEmpty();
     @Nullable NbtElement get(@NotNull String name);
     boolean containsName(@NotNull String name);
-    boolean containsValue(@NotNull NbtElement value);
+    boolean containsElement(@NotNull NbtElement element);
     @NotNull Iterable<@NotNull String> names();
-    @NotNull Iterable<Map.@NotNull Entry<@NotNull String, @NotNull NbtElement>> entries();
+    @NotNull Iterable<@NotNull Entry> entries();
 
     default byte getByte(@NotNull String name, byte defaultValue) {
         NbtElement nbt = get(name);

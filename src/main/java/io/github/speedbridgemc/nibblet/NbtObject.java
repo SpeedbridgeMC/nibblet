@@ -82,7 +82,7 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     private final Map<String, NbtElement> backingMap;
     private final Set<String> nameSet;
     private final NbtObjectView view;
-    private Set<Map.Entry<String, NbtElement>> entrySet;
+    private Set<Entry> entrySet;
 
     private NbtObject(@NotNull LinkedHashMap<@NotNull String, @NotNull NbtElement> backingMap) {
         this.backingMap = backingMap;
@@ -112,8 +112,8 @@ public final class NbtObject implements NbtElement, NbtObjectView {
             }
 
             @Override
-            public boolean containsValue(@NotNull NbtElement value) {
-                return NbtObject.this.containsValue(value);
+            public boolean containsElement(@NotNull NbtElement element) {
+                return NbtObject.this.containsElement(element);
             }
 
             @Override
@@ -122,7 +122,7 @@ public final class NbtObject implements NbtElement, NbtObjectView {
             }
 
             @Override
-            public @NotNull Iterable<Map.@NotNull Entry<@NotNull String, @NotNull NbtElement>> entries() {
+            public @NotNull Iterable<@NotNull Entry> entries() {
                 return NbtObject.this.entries();
             }
         };
@@ -174,8 +174,8 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     }
 
     @Override
-    public boolean containsValue(@NotNull NbtElement value) {
-        return backingMap.containsValue(value);
+    public boolean containsElement(@NotNull NbtElement element) {
+        return backingMap.containsValue(element);
     }
 
     @Override
@@ -184,16 +184,20 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     }
 
     @Override
-    public @NotNull Iterable<Map.Entry<String, NbtElement>> entries() {
-        if (entrySet == null)
-            entrySet = Collections.unmodifiableMap(backingMap).entrySet();
+    public @NotNull Iterable<@NotNull Entry> entries() {
+        if (entrySet == null) {
+            entrySet = new LinkedHashSet<>(backingMap.size());
+            for (Map.Entry<String, NbtElement> entry : backingMap.entrySet())
+                entrySet.add(new Entry(entry.getKey(), entry.getValue()));
+            entrySet = Collections.unmodifiableSet(entrySet);
+        }
         return entrySet;
     }
 
-    public @Nullable NbtElement put(@NotNull String name, @NotNull NbtElement value) {
-        if (value == this)
+    public @Nullable NbtElement put(@NotNull String name, @NotNull NbtElement element) {
+        if (element == this)
             throw new IllegalArgumentException("Can't add tag as its own child!");
-        return backingMap.put(name, value);
+        return backingMap.put(name, element);
     }
 
     public void putByte(@NotNull String name, byte value) {
@@ -252,8 +256,8 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     @Override
     public @NotNull NbtObject deepCopy() {
         NbtObject.Builder builder = builder(backingMap.size());
-        for (Map.Entry<String, NbtElement> entry : entries())
-            builder.put(entry.getKey(), entry.getValue().deepCopy());
+        for (Entry entry : entries())
+            builder.put(entry.name(), entry.element().deepCopy());
         return builder.build();
     }
 }
