@@ -3,6 +3,7 @@ package io.github.speedbridgemc.nibblet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public final class NbtLongArray implements NbtElement, NbtLongArrayView {
     public static final class Builder {
@@ -117,4 +118,18 @@ public final class NbtLongArray implements NbtElement, NbtLongArrayView {
         return new NbtLongArray(new ArrayList<>(backingList));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NbtLongArray that = (NbtLongArray) o;
+        return Objects.equals(backingList, that.backingList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NbtType.LONG_ARRAY, backingList);
+    }
 }

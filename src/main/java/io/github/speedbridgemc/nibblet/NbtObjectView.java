@@ -3,6 +3,8 @@ package io.github.speedbridgemc.nibblet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public interface NbtObjectView extends NbtRootElement {
     final class Entry {
         private final @NotNull String name;
@@ -25,6 +27,21 @@ public interface NbtObjectView extends NbtRootElement {
 
         public @NotNull NbtType elementType() {
             return elementType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            Entry entry = (Entry) o;
+            return name.equals(entry.name) && element.equals(entry.element);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, element);
         }
     }
 

@@ -3,6 +3,7 @@ package io.github.speedbridgemc.nibblet;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public final class NbtByteArray implements NbtElement, NbtByteArrayView {
     public static final class Builder {
@@ -115,5 +116,19 @@ public final class NbtByteArray implements NbtElement, NbtByteArrayView {
     @Override
     public @NotNull NbtByteArray copy() {
         return new NbtByteArray(new ArrayList<>(backingList));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NbtByteArray that = (NbtByteArray) o;
+        return Objects.equals(backingList, that.backingList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NbtType.BYTE_ARRAY, backingList);
     }
 }

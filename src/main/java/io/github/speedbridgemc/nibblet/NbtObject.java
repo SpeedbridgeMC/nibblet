@@ -260,4 +260,19 @@ public final class NbtObject implements NbtElement, NbtObjectView {
             builder.put(entry.name(), entry.element().deepCopy());
         return builder.build();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NbtObject nbtObject = (NbtObject) o;
+        return Objects.equals(backingMap, nbtObject.backingMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NbtType.COMPOUND, backingMap);
+    }
 }

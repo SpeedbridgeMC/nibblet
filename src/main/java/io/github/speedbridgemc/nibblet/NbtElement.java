@@ -20,39 +20,52 @@ public interface NbtElement {
     long[] EMPTY_LONG_ARRAY = new long[0];
 
     /**
-     * Gets this tag's type.
-     * @return tag type
+     * Gets this NBT element's type.
+     * @return NBT element type
      */
     @NotNull NbtType type();
 
     /**
-     * Creates a shallow copy of this tag.
+     * Creates a shallow copy of this NBT element.
      *
-     * @implNote Implementations may simply return {@code this} if the tag is immutable.
+     * @implNote Implementations may simply return {@code this} if the NBT element is immutable.
      *
-     * @return shallow copy of tag
+     * @return shallow copy of NBT element
      */
     @NotNull NbtElement copy();
 
     /**
-     * Creates a deep copy of this tag.
+     * Creates a deep copy of this NBT element.
      *
-     * @implNote Implementations may simply return {@code this} if the tag is immutable.
+     * @implNote Implementations may simply return {@code this} if the NBT element is immutable.
      *
-     * @return deep copy of tag
+     * @return deep copy of NBT element
      */
     default @NotNull NbtElement deepCopy() {
         return copy();
     }
 
     /**
-     * Gets an immutable view of this tag.
+     * Gets an immutable view of this NBT element.
      *
-     * @implNote Implementations may simply return {@code this} if the tag is immutable.
+     * @implNote Implementations may simply return {@code this} if the NBT element is immutable.
      *
-     * @return immutable view of tag
+     * @return immutable view of NBT element
      */
     default @NotNull NbtElement view() {
         return this;
     }
+
+    /**
+     * Checks if the specified object is equal to this NBT element.
+     * @param obj object to check against
+     * @return {@code true} if equal, {@code false} otherwise
+     */
+    boolean equals(Object obj);
+
+    /**
+     * Calculates this NBT element's hash code.
+     * @return hash code
+     */
+    int hashCode();
 }

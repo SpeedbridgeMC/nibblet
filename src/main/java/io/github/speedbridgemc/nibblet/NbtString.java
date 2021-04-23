@@ -2,6 +2,8 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public final class NbtString implements NbtElement {
     private final @NotNull String value;
 
@@ -25,5 +27,20 @@ public final class NbtString implements NbtElement {
     @Override
     public @NotNull NbtString copy() {
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NbtString nbtString = (NbtString) o;
+        return value.equals(nbtString.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NbtType.STRING, value);
     }
 }
