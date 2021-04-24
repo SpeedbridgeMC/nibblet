@@ -2,8 +2,7 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 public final class NbtLongArray implements NbtElement, NbtLongArrayView {
     public static final class Builder {
@@ -42,10 +41,12 @@ public final class NbtLongArray implements NbtElement, NbtLongArrayView {
     }
 
     private final ArrayList<Long> backingList;
+    private final List<Long> backingListU;
     private final NbtLongArrayView view;
 
     private NbtLongArray(@NotNull ArrayList<@NotNull Long> backingList) {
         this.backingList = backingList;
+        backingListU = Collections.unmodifiableList(backingList);
         view = new NbtLongArrayView() {
             @Override
             public int length() {
@@ -55,6 +56,25 @@ public final class NbtLongArray implements NbtElement, NbtLongArrayView {
             @Override
             public long get(int i) {
                 return NbtLongArray.this.get(i);
+            }
+
+            @Override
+            public @NotNull Iterator<@NotNull Long> iterator() {
+                return NbtLongArray.this.iterator();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == this)
+                    return true;
+                if (!(obj instanceof NbtLongArrayView))
+                    return false;
+                return NbtLongArray.this.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return NbtLongArray.this.hashCode();
             }
         };
     }
@@ -97,6 +117,11 @@ public final class NbtLongArray implements NbtElement, NbtLongArrayView {
         return backingList.get(i);
     }
 
+    @Override
+    public @NotNull Iterator<@NotNull Long> iterator() {
+        return backingListU.iterator();
+    }
+
     public long set(int i, long v) {
         return backingList.set(i, v);
     }
@@ -119,13 +144,20 @@ public final class NbtLongArray implements NbtElement, NbtLongArrayView {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(Object obj) {
+        if (obj == this)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(obj instanceof NbtLongArrayView))
             return false;
-        NbtLongArray that = (NbtLongArray) o;
-        return Objects.equals(backingList, that.backingList);
+        Iterator<Long> e1 = iterator();
+        Iterator<Long> e2 = ((NbtLongArrayView) obj).iterator();
+        while (e1.hasNext() && e2.hasNext()) {
+            long o1 = e1.next();
+            long o2 = e2.next();
+            if (o1 != o2)
+                return false;
+        }
+        return !(e1.hasNext() || e2.hasNext());
     }
 
     @Override

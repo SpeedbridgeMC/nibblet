@@ -2,8 +2,7 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 public final class NbtIntArray implements NbtElement, NbtIntArrayView {
     public static final class Builder {
@@ -42,10 +41,12 @@ public final class NbtIntArray implements NbtElement, NbtIntArrayView {
     }
 
     private final ArrayList<Integer> backingList;
+    private final List<Integer> backingListU;
     private final NbtIntArrayView view;
 
     private NbtIntArray(@NotNull ArrayList<@NotNull Integer> backingList) {
         this.backingList = backingList;
+        backingListU = Collections.unmodifiableList(backingList);
         view = new NbtIntArrayView() {
             @Override
             public int length() {
@@ -55,6 +56,25 @@ public final class NbtIntArray implements NbtElement, NbtIntArrayView {
             @Override
             public int get(int i) {
                 return NbtIntArray.this.get(i);
+            }
+
+            @Override
+            public @NotNull Iterator<@NotNull Integer> iterator() {
+                return NbtIntArray.this.iterator();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == this)
+                    return true;
+                if (!(obj instanceof NbtIntArrayView))
+                    return false;
+                return NbtIntArray.this.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return NbtIntArray.this.hashCode();
             }
         };
     }
@@ -97,6 +117,11 @@ public final class NbtIntArray implements NbtElement, NbtIntArrayView {
         return backingList.get(i);
     }
 
+    @Override
+    public @NotNull Iterator<@NotNull Integer> iterator() {
+        return backingListU.iterator();
+    }
+
     public int set(int i, int v) {
         return backingList.set(i, v);
     }
@@ -119,13 +144,20 @@ public final class NbtIntArray implements NbtElement, NbtIntArrayView {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(Object obj) {
+        if (obj == this)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(obj instanceof NbtIntArrayView))
             return false;
-        NbtIntArray that = (NbtIntArray) o;
-        return Objects.equals(backingList, that.backingList);
+        Iterator<Integer> e1 = iterator();
+        Iterator<Integer> e2 = ((NbtIntArrayView) obj).iterator();
+        while (e1.hasNext() && e2.hasNext()) {
+            int o1 = e1.next();
+            int o2 = e2.next();
+            if (o1 != o2)
+                return false;
+        }
+        return !(e1.hasNext() || e2.hasNext());
     }
 
     @Override

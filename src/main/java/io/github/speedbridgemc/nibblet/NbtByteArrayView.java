@@ -1,8 +1,12 @@
 package io.github.speedbridgemc.nibblet;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-public interface NbtByteArrayView extends NbtElement {
+import java.util.Iterator;
+
+public interface NbtByteArrayView extends NbtElement, Iterable<@NotNull Byte> {
+    @ApiStatus.NonExtendable
     @Override
     default @NotNull NbtType type() {
         return NbtType.BYTE_ARRAY;
@@ -10,6 +14,8 @@ public interface NbtByteArrayView extends NbtElement {
 
     int length();
     byte get(int i);
+    @Override
+    @NotNull Iterator<@NotNull Byte> iterator();
 
     default byte @NotNull [] toArray() {
         byte[] array = new byte[length()];

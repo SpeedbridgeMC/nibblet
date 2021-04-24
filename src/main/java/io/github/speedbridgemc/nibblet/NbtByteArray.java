@@ -2,8 +2,7 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 public final class NbtByteArray implements NbtElement, NbtByteArrayView {
     public static final class Builder {
@@ -42,10 +41,12 @@ public final class NbtByteArray implements NbtElement, NbtByteArrayView {
     }
 
     private final ArrayList<Byte> backingList;
+    private final List<Byte> backingListU;
     private final NbtByteArrayView view;
 
     private NbtByteArray(ArrayList<Byte> backingList) {
         this.backingList = backingList;
+        backingListU = Collections.unmodifiableList(backingList);
         view = new NbtByteArrayView() {
             @Override
             public int length() {
@@ -55,6 +56,25 @@ public final class NbtByteArray implements NbtElement, NbtByteArrayView {
             @Override
             public byte get(int i) {
                 return NbtByteArray.this.get(i);
+            }
+
+            @Override
+            public @NotNull Iterator<@NotNull Byte> iterator() {
+                return NbtByteArray.this.iterator();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == this)
+                    return true;
+                if (!(obj instanceof NbtByteArrayView))
+                    return false;
+                return NbtByteArray.this.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return NbtByteArray.this.hashCode();
             }
         };
     }
@@ -97,6 +117,11 @@ public final class NbtByteArray implements NbtElement, NbtByteArrayView {
         return backingList.get(i);
     }
 
+    @Override
+    public @NotNull Iterator<@NotNull Byte> iterator() {
+        return backingListU.iterator();
+    }
+
     public byte set(int i, byte v) {
         return backingList.set(i, v);
     }
@@ -119,12 +144,20 @@ public final class NbtByteArray implements NbtElement, NbtByteArrayView {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass())
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (!(obj instanceof NbtByteArrayView))
             return false;
-        NbtByteArray that = (NbtByteArray) o;
-        return Objects.equals(backingList, that.backingList);
+        Iterator<Byte> e1 = iterator();
+        Iterator<Byte> e2 = ((NbtByteArrayView) obj).iterator();
+        while (e1.hasNext() && e2.hasNext()) {
+            byte o1 = e1.next();
+            byte o2 = e2.next();
+            if (o1 != o2)
+                return false;
+        }
+        return !(e1.hasNext() || e2.hasNext());
     }
 
     @Override

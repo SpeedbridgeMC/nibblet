@@ -2,11 +2,7 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.*;
 
 public final class NbtList implements NbtElement, NbtListView {
     public static final class Builder {
@@ -96,12 +92,14 @@ public final class NbtList implements NbtElement, NbtListView {
         return new Builder(initialCapacity);
     }
 
-    private final List<NbtElement> backingList;
+    private final ArrayList<NbtElement> backingList;
+    private final List<NbtElement> backingListU;
     private NbtType itemType;
     private final NbtListView view;
 
-    private NbtList(@NotNull NbtType itemType, @NotNull List<@NotNull NbtElement> backingList) {
+    private NbtList(@NotNull NbtType itemType, @NotNull ArrayList<@NotNull NbtElement> backingList) {
         this.backingList = backingList;
+        backingListU = Collections.unmodifiableList(backingList);
         this.itemType = itemType;
         view = new NbtListView() {
             @Override
@@ -120,7 +118,7 @@ public final class NbtList implements NbtElement, NbtListView {
             }
 
             @Override
-            public @NotNull Iterator<NbtElement> iterator() {
+            public @NotNull Iterator<@NotNull NbtElement> iterator() {
                 return NbtList.this.iterator();
             }
         };
@@ -299,27 +297,9 @@ public final class NbtList implements NbtElement, NbtListView {
         itemType = NbtType.END;
     }
 
-    @NotNull
     @Override
-    public Iterator<NbtElement> iterator() {
-        return new Iterator<NbtElement>() {
-            private final Iterator<NbtElement> delegate = backingList.iterator();
-
-            @Override
-            public boolean hasNext() {
-                return delegate.hasNext();
-            }
-
-            @Override
-            public NbtElement next() {
-                return delegate.next();
-            }
-
-            @Override
-            public void forEachRemaining(Consumer<? super NbtElement> action) {
-                delegate.forEachRemaining(action);
-            }
-        };
+    public @NotNull Iterator<@NotNull NbtElement> iterator() {
+        return backingListU.iterator();
     }
 
     @Override
@@ -331,18 +311,25 @@ public final class NbtList implements NbtElement, NbtListView {
     public @NotNull NbtList deepCopy() {
         NbtList.Builder builder = builder(backingList.size());
         for (NbtElement nbt : this)
-            builder.add(nbt);
+            builder.add(nbt.deepCopy());
         return builder.build();
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(Object obj) {
+        if (obj == this)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(obj instanceof NbtListView))
             return false;
-        NbtList that = (NbtList) o;
-        return Objects.equals(backingList, that.backingList);
+        Iterator<NbtElement> e1 = iterator();
+        Iterator<NbtElement> e2 = ((NbtListView) obj).iterator();
+        while (e1.hasNext() && e2.hasNext()) {
+            NbtElement o1 = e1.next();
+            NbtElement o2 = e2.next();
+            if (!o1.equals(o2))
+                return false;
+        }
+        return !(e1.hasNext() || e2.hasNext());
     }
 
     @Override

@@ -1,8 +1,12 @@
 package io.github.speedbridgemc.nibblet;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-public interface NbtIntArrayView extends NbtElement {
+import java.util.Iterator;
+
+public interface NbtIntArrayView extends NbtElement, Iterable<@NotNull Integer> {
+    @ApiStatus.NonExtendable
     @Override
     default @NotNull NbtType type() {
         return NbtType.INT_ARRAY;
@@ -10,6 +14,8 @@ public interface NbtIntArrayView extends NbtElement {
 
     int length();
     int get(int i);
+    @Override
+    @NotNull Iterator<@NotNull Integer> iterator();
 
     default int @NotNull [] toArray() {
         int[] array = new int[length()];

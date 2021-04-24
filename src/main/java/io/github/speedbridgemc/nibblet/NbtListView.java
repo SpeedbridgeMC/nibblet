@@ -1,11 +1,13 @@
 package io.github.speedbridgemc.nibblet;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
 public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
+    @ApiStatus.NonExtendable
     @Override
     default @NotNull NbtType type() {
         return NbtType.LIST;
@@ -14,6 +16,8 @@ public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
     @NotNull NbtType itemType();
     int size();
     @NotNull NbtElement get(int i);
+    @Override
+    @NotNull Iterator<@NotNull NbtElement> iterator();
 
     default byte getByte(int i, byte defaultValue) {
         NbtElement nbt = get(i);
@@ -108,9 +112,6 @@ public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
             return ((NbtLongArrayView) nbt).toArray();
         return EMPTY_LONG_ARRAY;
     }
-
-    @Override
-    @NotNull Iterator<NbtElement> iterator();
 
     @Override
     default @NotNull NbtListView view() {

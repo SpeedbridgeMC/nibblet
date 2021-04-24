@@ -79,7 +79,7 @@ public final class NbtObject implements NbtElement, NbtObjectView {
         return new Builder(initialCapacity);
     }
 
-    private final Map<String, NbtElement> backingMap;
+    private final LinkedHashMap<String, NbtElement> backingMap;
     private final Set<String> nameSet;
     private final NbtObjectView view;
     private Set<Entry> entrySet;
@@ -124,6 +124,20 @@ public final class NbtObject implements NbtElement, NbtObjectView {
             @Override
             public @NotNull Iterable<@NotNull Entry> entries() {
                 return NbtObject.this.entries();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == this)
+                    return true;
+                if (!(obj instanceof NbtObjectView))
+                    return false;
+                return NbtObject.this.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return NbtObject.this.hashCode();
             }
         };
     }
@@ -262,13 +276,21 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(obj instanceof NbtObjectView))
             return false;
-        NbtObject nbtObject = (NbtObject) o;
-        return Objects.equals(backingMap, nbtObject.backingMap);
+        NbtObjectView other = (NbtObjectView) obj;
+        if (size() != other.size())
+            return false;
+        for (Entry e : entries()) {
+            String name = e.name();
+            NbtElement elem = e.element();
+            if (!elem.equals(other.get(name)))
+                return false;
+        }
+        return true;
     }
 
     @Override

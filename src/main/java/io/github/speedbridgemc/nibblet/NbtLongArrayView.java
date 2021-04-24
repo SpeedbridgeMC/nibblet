@@ -2,7 +2,9 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface NbtLongArrayView extends NbtElement {
+import java.util.Iterator;
+
+public interface NbtLongArrayView extends NbtElement, Iterable<@NotNull Long> {
     @Override
     default @NotNull NbtType type() {
         return NbtType.LONG_ARRAY;
@@ -10,6 +12,8 @@ public interface NbtLongArrayView extends NbtElement {
 
     int length();
     long get(int i);
+    @Override
+    @NotNull Iterator<@NotNull Long> iterator();
 
     default long @NotNull [] toArray() {
         long[] array = new long[length()];
