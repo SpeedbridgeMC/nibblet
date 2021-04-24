@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Utility methods for reading and writing VarInts.
+ * Provides utility methods for reading and writing VarInts.
  */
 public final class VarInts {
     private VarInts() { }

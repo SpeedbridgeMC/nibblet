@@ -2,7 +2,6 @@ package io.github.speedbridgemc.nibblet.test;
 
 import io.github.speedbridgemc.nibblet.*;
 import io.github.speedbridgemc.nibblet.stream.NbtWriter;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +9,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
 
 public final class Test {
@@ -113,7 +111,7 @@ public final class Test {
         try (InputStream in = Files.newInputStream(path)) {
             NbtIO.Named<?> tag = NbtIO.read(NbtFormat.JAVA, in);
             System.out.println("Reading from file \"" + path + "\":");
-            printTag(tag.element(), tag.name(), "");
+            NbtStringifier.printWikiVGString(tag.name(), tag.element());
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + path + "\"");
@@ -123,7 +121,7 @@ public final class Test {
         try (InputStream in = Files.newInputStream(pathS)) {
             NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK, in);
             System.out.println("Reading from file \"" + pathS + "\":");
-            printTag(tag.element(), tag.name(), "");
+            NbtStringifier.printWikiVGString(tag.name(), tag.element());
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathS + "\"");
@@ -133,7 +131,7 @@ public final class Test {
         try (InputStream in = Files.newInputStream(pathSL)) {
             NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK, in);
             System.out.println("Reading from file \"" + pathSL + "\":");
-            printTag(tag.element(), tag.name(), "");
+            NbtStringifier.printWikiVGString(tag.name(), tag.element());
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathSL + "\"");
@@ -143,7 +141,7 @@ public final class Test {
         try (InputStream in = Files.newInputStream(pathNet)) {
             NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK_NETWORK, in);
             System.out.println("Reading from file \"" + pathNet + "\":");
-            printTag(tag.element(), tag.name(), "");
+            NbtStringifier.printWikiVGString(tag.name(), tag.element());
             System.out.println();
         } catch (IOException e) {
             System.err.println("Failed to read from \"" + pathNet + "\"");
@@ -156,87 +154,10 @@ public final class Test {
              GZIPInputStream in = new GZIPInputStream(inCompressed)) {
             NbtIO.Named<?> tag = NbtIO.read(NbtFormat.JAVA, in);
             System.out.println("Reading from file \"" + pathBig + "\":");
-            printTag(tag.element(), tag.name(), "");
+            NbtStringifier.printWikiVGString(tag.name(), tag.element());
         } catch (IOException e) {
             System.err.print("Failed to read from \"" + pathBig + "\"");
             e.printStackTrace();
         }
-    }
-
-    private static void printTag(@NotNull NbtElement nbt, @NotNull String name, @NotNull String indent) {
-        System.out.format("%s%s(%s): ", indent, nbt.type(), name.isEmpty() ? "None" : "'" + name + "'");
-        switch (nbt.type()) {
-        case BYTE:
-            System.out.format("%d%n", ((NbtByte) nbt).value());
-            break;
-        case SHORT:
-            System.out.format("%d%n", ((NbtShort) nbt).value());
-            break;
-        case INT:
-            System.out.format("%d%n", ((NbtInt) nbt).value());
-            break;
-        case LONG:
-            System.out.format("%d%n", ((NbtLong) nbt).value());
-            break;
-        case FLOAT:
-            System.out.format("%g%n", ((NbtFloat) nbt).value());
-            break;
-        case DOUBLE:
-            System.out.format("%g%n", ((NbtDouble) nbt).value());
-            break;
-        case BYTE_ARRAY:
-            NbtByteArrayView nbtByteArr = (NbtByteArrayView) nbt;
-            System.out.print("[");
-            for (int i = 0, length = nbtByteArr.length(); i < length; i++) {
-                System.out.format("%d", nbtByteArr.get(i));
-                if (i < length - 1)
-                    System.out.print(", ");
-            }
-            System.out.println("]");
-            break;
-        case STRING:
-            System.out.format("'%s'%n", ((NbtString) nbt).value());
-            break;
-        case LIST:
-            NbtListView nbtList = (NbtListView) nbt;
-            System.out.format("%s%n%s{%n", entryCount(nbtList.size()), indent);
-            for (NbtElement item : nbtList)
-                printTag(item, "", indent + "  ");
-            System.out.format("%s}%n", indent);
-            break;
-        case COMPOUND:
-            NbtObjectView nbtObj = (NbtObjectView) nbt;
-            System.out.format("%s%n%s{%n", entryCount(nbtObj.size()), indent);
-            for (NbtObjectView.Entry entry : nbtObj.entries())
-                printTag(entry.element(), entry.name(), indent + "  ");
-            System.out.format("%s}%n", indent);
-            break;
-        case INT_ARRAY:
-            NbtIntArrayView nbtIntArr = (NbtIntArrayView) nbt;
-            System.out.print("[");
-            for (int i = 0, length = nbtIntArr.length(); i < length; i++) {
-                System.out.format("%d", nbtIntArr.get(i));
-                if (i < length - 1)
-                    System.out.print(", ");
-            }
-            System.out.println("]");
-            break;
-        case LONG_ARRAY:
-            NbtLongArrayView nbtLongTag = (NbtLongArrayView) nbt;
-            System.out.print("[");
-            for (int i = 0, length = nbtLongTag.length(); i < length; i++) {
-                System.out.format("%d", nbtLongTag.get(i));
-                if (i < length - 1)
-                    System.out.print(", ");
-            }
-            System.out.println("]");
-            break;
-        default:
-            throw new RuntimeException("Unprintable tag type " + nbt.type());
-        }
-    }
-
-    private static @NotNull String entryCount(int entries) {
-        return entries == 1 ? "1 entry" : entries + " entries";
     }
 }
