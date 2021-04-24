@@ -2,6 +2,8 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public final class NbtFloat implements NbtNumber {
     private final float value;
 
@@ -30,5 +32,17 @@ public final class NbtFloat implements NbtNumber {
     @Override
     public @NotNull NbtFloat copy() {
         return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NbtNumber)
+            return ((NbtNumber) obj).valueAsNumber().floatValue() == value;
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NbtType.FLOAT, value);
     }
 }

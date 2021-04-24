@@ -2,6 +2,8 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public final class NbtByte implements NbtNumber {
     private final byte value;
 
@@ -30,5 +32,17 @@ public final class NbtByte implements NbtNumber {
     @Override
     public @NotNull NbtByte copy() {
         return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NbtNumber)
+            return ((NbtNumber) obj).valueAsNumber().byteValue() == value;
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(NbtType.BYTE, value);
     }
 }
