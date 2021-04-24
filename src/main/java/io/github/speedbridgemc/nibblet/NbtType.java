@@ -12,43 +12,43 @@ public enum NbtType {
      * {@code TAG_End} - Effectively acts as a "null type" of sorts.<p>
      * Marks the end of a {@link #COMPOUND} element. Also used for the item type of empty {@link #LIST}s.
      */
-    END((byte) 0, "TAG_End", 0),
+    END((byte) 0, "TAG_End"),
     /**
      * {@code TAG_Byte} - Encodes a {@code byte} value.
      *
      * @see NbtByte
      */
-    BYTE((byte) 1, "TAG_Byte", Byte.BYTES),
+    BYTE((byte) 1, "TAG_Byte"),
     /**
      * {@code TAG_Short} - Encodes a {@code short} value.
      *
      * @see NbtShort
      */
-    SHORT((byte) 2, "TAG_Short", Short.BYTES),
+    SHORT((byte) 2, "TAG_Short"),
     /**
      * {@code TAG_Int} - Encodes an {@code int} value.
      *
      * @see NbtInt
      */
-    INT((byte) 3, "TAG_Int", Integer.BYTES),
+    INT((byte) 3, "TAG_Int"),
     /**
      * {@code TAG_Long} - Encodes a {@code long} value.
      *
      * @see NbtLong
      */
-    LONG((byte) 4, "TAG_Long", Long.BYTES),
+    LONG((byte) 4, "TAG_Long"),
     /**
      * {@code TAG_Float} - Encodes a {@code float} value.
      *
      * @see NbtFloat
      */
-    FLOAT((byte) 5, "TAG_Float", Float.BYTES),
+    FLOAT((byte) 5, "TAG_Float"),
     /**
      * {@code TAG_Double} - Encodes a {@code double} value.
      *
      * @see NbtDouble
      */
-    DOUBLE((byte) 6, "TAG_Double", Double.BYTES),
+    DOUBLE((byte) 6, "TAG_Double"),
     /**
      * {@code TAG_Byte_Array} - Encodes an array of {@code byte} values.
      *
@@ -93,16 +93,10 @@ public enum NbtType {
 
     private final byte id;
     private final String name;
-    private final long payloadSize;
-
-    NbtType(byte id, String name, long payloadSize) {
-        this.id = id;
-        this.name = name;
-        this.payloadSize = payloadSize;
-    }
 
     NbtType(byte id, String name) {
-        this(id, name, -1);
+        this.id = id;
+        this.name = name;
     }
 
     /**
@@ -120,22 +114,6 @@ public enum NbtType {
     @Override
     public String toString() {
         return name;
-    }
-
-    /**
-     * Checks if this element type's value has a constant size.
-     * @return {@code true} if payload size is constant, {@code false} otherwise
-     */
-    public boolean hasConstantPayloadSize() {
-        return payloadSize >= 0;
-    }
-
-    /**
-     * Gets the size of this element type's encoded value in bytes. If the size is non-constant, returns -1 instead.
-     * @return payload size, or -1 if non-constant
-     */
-    public long payloadSize() {
-        return payloadSize;
     }
 
     /**

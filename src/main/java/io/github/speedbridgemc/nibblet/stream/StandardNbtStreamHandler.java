@@ -1,5 +1,6 @@
 package io.github.speedbridgemc.nibblet.stream;
 
+import io.github.speedbridgemc.nibblet.NbtType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -24,6 +25,26 @@ public class StandardNbtStreamHandler implements NbtStreamHandler {
 
     protected final @NotNull ByteBuffer scratchBuf() {
         return tlScratchBuf.get();
+    }
+
+    @Override
+    public long payloadSize(@NotNull NbtType type) {
+        switch (type) {
+        case BYTE:
+            return Byte.BYTES;
+        case SHORT:
+            return Short.BYTES;
+        case INT:
+            return Integer.BYTES;
+        case LONG:
+            return Long.BYTES;
+        case FLOAT:
+            return Float.BYTES;
+        case DOUBLE:
+            return Double.BYTES;
+        default:
+            return -1;
+        }
     }
 
     @Override

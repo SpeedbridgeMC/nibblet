@@ -1,5 +1,6 @@
 package io.github.speedbridgemc.nibblet.stream;
 
+import io.github.speedbridgemc.nibblet.NbtType;
 import io.github.speedbridgemc.nibblet.util.VarInts;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +14,22 @@ import java.nio.ByteOrder;
 public final class BedrockNetworkNbtStreamHandler extends StandardNbtStreamHandler {
     public BedrockNetworkNbtStreamHandler() {
         super(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    @Override
+    public long payloadSize(@NotNull NbtType type) {
+        switch (type) {
+        case BYTE:
+            return Byte.BYTES;
+        case SHORT:
+            return Short.BYTES;
+        case FLOAT:
+            return Float.BYTES;
+        case DOUBLE:
+            return Double.BYTES;
+        default:
+            return -1;
+        }
     }
 
     @Override
@@ -43,5 +60,21 @@ public final class BedrockNetworkNbtStreamHandler extends StandardNbtStreamHandl
     @Override
     public void writeUTFLength(@NotNull OutputStream out, int utflen) throws IOException {
         VarInts.writeVarInt(out, utflen);
+    }
+
+    @Override
+    public void skipInt(@NotNull InputStream in) throws IOException {
+        int b;
+        do {
+            b = in.read();
+        } while ((b & 0x80) != 0);
+    }
+
+    @Override
+    public void skipLong(@NotNull InputStream in) throws IOException {
+        int b;
+        do {
+            b = in.read();
+        } while ((b & 0x80) != 0);
     }
 }

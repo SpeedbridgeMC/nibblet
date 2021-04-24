@@ -265,17 +265,36 @@ public final class NbtReader implements Closeable {
             skippedType = thisType;
         else
             skippedType = nextType();
-        if (skippedType.hasConstantPayloadSize()) {
-            final long payloadSize = skippedType.payloadSize();
-            if (in.skip(payloadSize) < payloadSize)
+        long bytesToSkip = streamHandler.payloadSize(skippedType);
+        if (bytesToSkip >= 0) {
+            if (in.skip(bytesToSkip) < bytesToSkip)
                 throw new IOException("Failed to skip entire " + skippedType + " value");
             return;
         }
-        long bytesToSkip;
+        long payloadSize;
         switch (skippedType) {
+        case BYTE:
+            //noinspection ResultOfMethodCallIgnored
+            in.read();
+            break;
+        case SHORT:
+            streamHandler.skipShort(in);
+            break;
+        case INT:
+            streamHandler.skipInt(in);
+            break;
+        case LONG:
+            streamHandler.skipLong(in);
+            break;
+        case FLOAT:
+            streamHandler.skipFloat(in);
+            break;
+        case DOUBLE:
+            streamHandler.skipDouble(in);
+            break;
         case BYTE_ARRAY:
             beginByteArray();
-            bytesToSkip = NbtType.BYTE.payloadSize() * ctx.itemsRemaining;
+            bytesToSkip = ctx.itemsRemaining;
             if (in.skip(bytesToSkip) < bytesToSkip)
                 throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
             ctx.itemsRemaining = 0;
@@ -288,8 +307,9 @@ public final class NbtReader implements Closeable {
             break;
         case LIST:
             beginList();
-            if (ctx.itemType.hasConstantPayloadSize()) {
-                bytesToSkip = ctx.itemType.payloadSize() * ctx.itemsRemaining;
+            payloadSize = streamHandler.payloadSize(ctx.itemType);
+            if (payloadSize >= 0) {
+                bytesToSkip = payloadSize * ctx.itemsRemaining;
                 if (in.skip(bytesToSkip) < bytesToSkip)
                     throw new IOException("Failed to skip entire list of " + ctx.itemType + " (" + ctx.itemsRemaining + " entries)");
             } else {
@@ -314,17 +334,31 @@ public final class NbtReader implements Closeable {
             break;
         case INT_ARRAY:
             beginIntArray();
-            bytesToSkip = NbtType.INT.payloadSize() * ctx.itemsRemaining;
-            if (in.skip(bytesToSkip) < bytesToSkip)
-                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            payloadSize = streamHandler.payloadSize(NbtType.INT);
+            if (payloadSize >= 0) {
+                bytesToSkip = payloadSize * ctx.itemsRemaining;
+                if (in.skip(bytesToSkip) < bytesToSkip)
+                    throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            } else {
+                int itemsRemaining = ctx.itemsRemaining;
+                for (int i = 0; i < itemsRemaining; i++)
+                    skipValue();
+            }
             ctx.itemsRemaining = 0;
             endIntArray();
             break;
         case LONG_ARRAY:
             beginLongArray();
-            bytesToSkip = NbtType.LONG.payloadSize() * ctx.itemsRemaining;
-            if (in.skip(bytesToSkip) < bytesToSkip)
-                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            payloadSize = streamHandler.payloadSize(NbtType.LONG);
+            if (payloadSize >= 0) {
+                bytesToSkip = payloadSize * ctx.itemsRemaining;
+                if (in.skip(bytesToSkip) < bytesToSkip)
+                    throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+            } else {
+                int itemsRemaining = ctx.itemsRemaining;
+                for (int i = 0; i < itemsRemaining; i++)
+                    skipValue();
+            }
             ctx.itemsRemaining = 0;
             endLongArray();
             break;

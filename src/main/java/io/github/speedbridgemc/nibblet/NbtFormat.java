@@ -42,6 +42,11 @@ public enum NbtFormat implements NbtStreamHandler {
     }
 
     @Override
+    public long payloadSize(@NotNull NbtType type) {
+        return delegate.payloadSize(type);
+    }
+
+    @Override
     public short readShort(@NotNull InputStream in) throws IOException {
         return delegate.readShort(in);
     }
@@ -99,5 +104,30 @@ public enum NbtFormat implements NbtStreamHandler {
     @Override
     public void writeUTFLength(@NotNull OutputStream out, int utflen) throws IOException {
         delegate.writeUTFLength(out, utflen);
+    }
+
+    @Override
+    public void skipShort(@NotNull InputStream in) throws IOException {
+        delegate.skipShort(in);
+    }
+
+    @Override
+    public void skipInt(@NotNull InputStream in) throws IOException {
+        delegate.skipInt(in);
+    }
+
+    @Override
+    public void skipLong(@NotNull InputStream in) throws IOException {
+        delegate.skipLong(in);
+    }
+
+    @Override
+    public void skipFloat(@NotNull InputStream in) throws IOException {
+        delegate.skipFloat(in);
+    }
+
+    @Override
+    public void skipDouble(@NotNull InputStream in) throws IOException {
+        delegate.skipDouble(in);
     }
 }
