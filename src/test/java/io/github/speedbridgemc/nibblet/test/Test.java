@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public final class Test {
     public static void main(String[] args) {
@@ -38,8 +39,9 @@ public final class Test {
         }
 
         Path pathS = Paths.get(".", "test_stream.nbt").toAbsolutePath().normalize();
-        try (OutputStream out = Files.newOutputStream(pathS);
-             NbtWriter writer = new NbtWriter(NbtFormat.BEDROCK, out)) {
+        try (OutputStream outUncompressed = Files.newOutputStream(pathS);
+             GZIPOutputStream out = new GZIPOutputStream(outUncompressed);
+             NbtWriter writer = new NbtWriter(NbtFormat.JAVA, out)) {
             writer.name("test_root")
                     .beginCompound()
                     .name("test_nested")
@@ -118,8 +120,9 @@ public final class Test {
             e.printStackTrace();
         }
 
-        try (InputStream in = Files.newInputStream(pathS)) {
-            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.BEDROCK, in);
+        try (InputStream inCompressed = Files.newInputStream(pathS);
+             GZIPInputStream in = new GZIPInputStream(inCompressed)) {
+            NbtIO.Named<?> tag = NbtIO.read(NbtFormat.JAVA, in);
             System.out.println("Reading from file \"" + pathS + "\":");
             NbtStringifier.printWikiVGString(tag.name(), tag.element());
             System.out.println();

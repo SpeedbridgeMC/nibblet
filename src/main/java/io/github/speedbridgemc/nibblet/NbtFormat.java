@@ -27,8 +27,7 @@ public enum NbtFormat implements NbtStreamHandler {
      * <ul>
      *     <li><a href="https://developers.google.com/protocol-buffers/docs/encoding#signed_integers">ZigZag</a>
      *     VarInt encoding for {@code TAG_Int} values.</li>
-     *     <li><a href="https://developers.google.com/protocol-buffers/docs/encoding#signed_integers">ZigZag</a>
-     *     VarLong encoding for {@code TAG_Long} values.</li>
+     *     <li>ZigZag VarLong encoding for {@code TAG_Long} values.</li>
      *      <li>VarInt encoding for string length prefixes (names and {@code TAG_String} values).</li>
      *      <li>Little-endian encoding for all other values.</li>
      * </ul>
