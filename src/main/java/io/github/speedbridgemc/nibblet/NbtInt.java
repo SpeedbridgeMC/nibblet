@@ -36,8 +36,8 @@ public final class NbtInt implements NbtNumber {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof NbtNumber)
-            return ((NbtNumber) obj).valueAsNumber().intValue() == value;
+        if (obj instanceof NbtInt)
+            return ((NbtInt) obj).value == value;
         return false;
     }
 

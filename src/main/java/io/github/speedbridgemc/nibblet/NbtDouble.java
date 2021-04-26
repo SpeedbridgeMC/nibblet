@@ -36,8 +36,8 @@ public final class NbtDouble implements NbtNumber {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof NbtNumber)
-            return ((NbtNumber) obj).valueAsNumber().doubleValue() == value;
+        if (obj instanceof NbtDouble)
+            return ((NbtDouble) obj).value == value;
         return false;
     }
 

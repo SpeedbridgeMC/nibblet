@@ -36,8 +36,8 @@ public final class NbtLong implements NbtNumber {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof NbtNumber)
-            return ((NbtNumber) obj).valueAsNumber().longValue() == value;
+        if (obj instanceof NbtLong)
+            return ((NbtLong) obj).value == value;
         return false;
     }
 

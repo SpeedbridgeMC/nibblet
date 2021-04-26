@@ -36,8 +36,8 @@ public final class NbtShort implements NbtNumber {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof NbtNumber)
-            return ((NbtNumber) obj).valueAsNumber().shortValue() == value;
+        if (obj instanceof NbtShort)
+            return ((NbtShort) obj).value == value;
         return false;
     }
 
