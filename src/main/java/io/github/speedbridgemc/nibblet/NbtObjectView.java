@@ -124,7 +124,7 @@ public interface NbtObjectView extends NbtRootElement {
     default @Nullable NbtListView getList(@NotNull String name, @NotNull NbtType itemType) {
         NbtElement nbt = get(name);
         if (nbt instanceof NbtListView) {
-            NbtListView listTag = (NbtListView) nbt;
+            NbtListView listTag = ((NbtListView) nbt).view();
             if (listTag.itemType() == itemType)
                 return listTag;
         }
@@ -134,7 +134,7 @@ public interface NbtObjectView extends NbtRootElement {
     default @Nullable NbtObjectView getCompound(@NotNull String name) {
         NbtElement nbt = get(name);
         if (nbt instanceof NbtObjectView)
-            return (NbtObjectView) nbt;
+            return ((NbtObjectView) nbt).view();
         return null;
     }
 

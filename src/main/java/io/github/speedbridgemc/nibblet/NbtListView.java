@@ -85,7 +85,7 @@ public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
     default @Nullable NbtListView getList(int i, @NotNull NbtType itemType) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtListView) {
-            NbtListView listTag = (NbtListView) nbt;
+            NbtListView listTag = ((NbtListView) nbt).view();
             if (listTag.itemType() == itemType)
                 return listTag;
         }
@@ -95,7 +95,7 @@ public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
     default @Nullable NbtObjectView getCompound(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtObjectView)
-            return (NbtObjectView) nbt;
+            return ((NbtObjectView) nbt).view();
         return null;
     }
 
