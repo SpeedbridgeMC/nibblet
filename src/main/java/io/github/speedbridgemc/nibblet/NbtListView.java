@@ -92,7 +92,7 @@ public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
         return null;
     }
 
-    default @Nullable NbtObjectView getCompound(int i) {
+    default @Nullable NbtObjectView getObject(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtObjectView)
             return ((NbtObjectView) nbt).view();

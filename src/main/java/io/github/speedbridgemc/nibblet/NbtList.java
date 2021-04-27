@@ -148,11 +148,6 @@ public final class NbtList implements NbtElement, NbtListView {
     }
 
     @Override
-    public @NotNull NbtType type() {
-        return NbtType.LIST;
-    }
-
-    @Override
     public @NotNull NbtListView view() {
         return view;
     }

@@ -131,7 +131,7 @@ public interface NbtObjectView extends NbtRootElement {
         return null;
     }
 
-    default @Nullable NbtObjectView getCompound(@NotNull String name) {
+    default @Nullable NbtObjectView getObject(@NotNull String name) {
         NbtElement nbt = get(name);
         if (nbt instanceof NbtObjectView)
             return ((NbtObjectView) nbt).view();
