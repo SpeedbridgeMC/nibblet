@@ -98,7 +98,7 @@ public final class NbtReader implements Closeable {
     }
 
     public void beginCompound() throws IOException {
-        expectType(NbtType.COMPOUND);
+        expectType(NbtType.OBJECT);
         ctx = ctx.push(Mode.COMPOUND);
     }
 
@@ -320,7 +320,7 @@ public final class NbtReader implements Closeable {
             ctx.itemsRemaining = 0;
             endList();
             break;
-        case COMPOUND:
+        case OBJECT:
             beginCompound();
             skippedType = nextType();
             while (skippedType != NbtType.END) {

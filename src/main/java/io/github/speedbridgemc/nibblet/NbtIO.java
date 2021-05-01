@@ -60,7 +60,7 @@ public final class NbtIO {
 
         @Override
         public @NotNull NbtType elementType() {
-            return NbtType.COMPOUND;
+            return NbtType.OBJECT;
         }
     }
 
@@ -102,7 +102,7 @@ public final class NbtIO {
             NbtType rootType = reader.nextType();
             if (rootType == NbtType.ROOT_LIST)
                 return readRootList(reader);
-            else if (rootType == NbtType.COMPOUND)
+            else if (rootType == NbtType.OBJECT)
                 return readRootCompound(reader);
             else
                 throw new MalformedNbtException("Unsupported root element type " + rootType);
@@ -155,7 +155,7 @@ public final class NbtIO {
                 listBuilder.add(readElement(reader, reader.listItemType()));
             reader.endList();
             return listBuilder.build();
-        case COMPOUND:
+        case OBJECT:
             reader.beginCompound();
             NbtObject objElem = readCompound(reader);
             reader.endCompound();
@@ -203,7 +203,7 @@ public final class NbtIO {
         try (NbtWriter writer = new NbtWriter(streamHandler, out)) {
             writer.name(rootName);
             switch (rootElement.type()) {
-            case COMPOUND:
+            case OBJECT:
                 writeCompound(writer, (NbtObjectView) rootElement);
                 break;
             case LIST:
@@ -264,7 +264,7 @@ public final class NbtIO {
         case LIST:
             writeList(writer, (NbtListView) element);
             break;
-        case COMPOUND:
+        case OBJECT:
             writeCompound(writer, (NbtObjectView) element);
             break;
         case INT_ARRAY:

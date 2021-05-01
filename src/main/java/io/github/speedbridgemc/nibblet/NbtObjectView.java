@@ -47,7 +47,7 @@ public interface NbtObjectView extends NbtRootElement {
 
     @Override
     default @NotNull NbtType type() {
-        return NbtType.COMPOUND;
+        return NbtType.OBJECT;
     }
 
     int size();

@@ -73,7 +73,7 @@ public final class NbtStringifier {
                 printWikiVGString("", item, out, indent + "  ");
             out.format("%s}%n", indent);
             break;
-        case COMPOUND:
+        case OBJECT:
             NbtObjectView nbtObj = (NbtObjectView) nbt;
             out.format("%s%n%s{%n", entryCount(nbtObj.size()), indent);
             for (NbtObjectView.Entry entry : nbtObj.entries())

@@ -19,9 +19,9 @@ public final class NbtWriter implements Closeable {
 
     private enum Mode {
         ROOT_UNDETERMINED(NbtType.END, NbtType.END),
-        ROOT_COMPOUND(NbtType.COMPOUND, NbtType.END),
+        ROOT_COMPOUND(NbtType.OBJECT, NbtType.END),
         ROOT_LIST(NbtType.ROOT_LIST, NbtType.END),
-        COMPOUND(NbtType.COMPOUND, NbtType.END),
+        COMPOUND(NbtType.OBJECT, NbtType.END),
         LIST(NbtType.LIST, NbtType.END),
         BYTE_ARRAY(NbtType.BYTE_ARRAY, NbtType.BYTE),
         INT_ARRAY(NbtType.INT_ARRAY, NbtType.INT),
@@ -152,7 +152,7 @@ public final class NbtWriter implements Closeable {
         case ROOT_UNDETERMINED:
             if (deferredName == null)
                 throw new MalformedNbtException("Missing root tag name");
-            if (type == NbtType.COMPOUND)
+            if (type == NbtType.OBJECT)
                 ctx = new Context(Mode.ROOT_COMPOUND, null);
             else if (type == NbtType.LIST) {
                 ctx = new Context(Mode.ROOT_LIST, null);

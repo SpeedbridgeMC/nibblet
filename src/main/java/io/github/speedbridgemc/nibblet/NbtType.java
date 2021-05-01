@@ -10,7 +10,7 @@ import java.util.HashMap;
 public enum NbtType {
     /**
      * {@code TAG_End} - Effectively acts as a "null type" of sorts.<p>
-     * Marks the end of a {@link #COMPOUND} element. Also used for the item type of empty {@link #LIST}s.
+     * Marks the end of a {@link #OBJECT} element. Also used for the item type of empty {@link #LIST}s.
      */
     END((byte) 0, "TAG_End"),
     /**
@@ -68,11 +68,11 @@ public enum NbtType {
      */
     LIST((byte) 9, "TAG_List"),
     /**
-     * {@code TAG_Compound} - Encodes a list of named elements.
+     * {@code TAG_Compound} (called "object" in this library) - Encodes a map of names to elements.
      * 
      * @see NbtObject
      */
-    COMPOUND((byte) 10, "TAG_Compound"),
+    OBJECT((byte) 10, "TAG_Compound"),
     /**
      * {@code TAG_Int_Array} - Encodes an array of {@code int} values.
      *

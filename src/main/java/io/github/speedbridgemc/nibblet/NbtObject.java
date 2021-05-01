@@ -295,6 +295,6 @@ public final class NbtObject implements NbtElement, NbtObjectView {
 
     @Override
     public int hashCode() {
-        return Objects.hash(NbtType.COMPOUND, backingMap);
+        return Objects.hash(NbtType.OBJECT, backingMap);
     }
 }
