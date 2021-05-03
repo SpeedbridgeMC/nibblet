@@ -2,7 +2,7 @@ package io.github.speedbridgemc.nibblet.stream;
 
 import io.github.speedbridgemc.nibblet.MalformedNbtException;
 import io.github.speedbridgemc.nibblet.NbtType;
-import io.github.speedbridgemc.nibblet.util.ModUTF8Strings;
+import io.github.speedbridgemc.nibblet.util.MUTF8Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,7 +136,7 @@ public final class NbtWriter implements Closeable {
     }
 
     private void string(@NotNull String value) throws IOException {
-        ModUTF8Strings.EncodeResult res = ModUTF8Strings.encode(value);
+        MUTF8Strings.EncodeResult res = MUTF8Strings.encode(value);
         streamHandler.writeUTFLength(out, res.utfLength());
         out.write(res.buffer(), 0, res.utfLength());
     }

@@ -2,7 +2,7 @@ package io.github.speedbridgemc.nibblet.stream;
 
 import io.github.speedbridgemc.nibblet.MalformedNbtException;
 import io.github.speedbridgemc.nibblet.NbtType;
-import io.github.speedbridgemc.nibblet.util.ModUTF8Strings;
+import io.github.speedbridgemc.nibblet.util.MUTF8Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -215,7 +215,7 @@ public final class NbtReader implements Closeable {
         byte[] buf = buffer(utflen);
         if (in.read(buf, 0, utflen) < utflen)
             throw new IOException("Failed to read entire string");
-        return ModUTF8Strings.decode(buf, utflen);
+        return MUTF8Strings.decode(buf, utflen);
     }
 
     public byte nextByte() throws IOException {

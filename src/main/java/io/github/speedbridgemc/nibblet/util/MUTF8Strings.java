@@ -7,8 +7,8 @@ import java.io.UTFDataFormatException;
 /**
  * Provides utility methods for encoding and decoding strings using Java's {@linkplain java.io.DataInput modified UTF-8 encoding}.
  */
-public final class ModUTF8Strings {
-    private ModUTF8Strings() { }
+public final class MUTF8Strings {
+    private MUTF8Strings() { }
 
     /**
      * Decodes a string encoded in the modified UTF-8 format.
