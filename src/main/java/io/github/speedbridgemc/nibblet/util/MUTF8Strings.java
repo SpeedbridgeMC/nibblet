@@ -2,6 +2,8 @@ package io.github.speedbridgemc.nibblet.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UTFDataFormatException;
 
 /**
@@ -131,6 +133,15 @@ public final class MUTF8Strings {
             byte[] copy = new byte[utflen];
             System.arraycopy(buf, 0, copy, 0, utflen);
             return copy;
+        }
+
+        /**
+         * Writes the encoded buffer to an output stream.
+         * @param out stream to write to
+         * @throws IOException if an I/O error occurs.
+         */
+        public void write(@NotNull OutputStream out) throws IOException {
+            out.write(buf, 0, utflen);
         }
     }
 

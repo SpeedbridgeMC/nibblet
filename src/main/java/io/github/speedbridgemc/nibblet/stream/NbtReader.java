@@ -30,7 +30,7 @@ public final class NbtReader implements Closeable {
     
     private enum Mode {
         ROOT,
-        COMPOUND,
+        OBJECT,
         LIST
     }
 
@@ -99,11 +99,11 @@ public final class NbtReader implements Closeable {
 
     public void beginCompound() throws IOException {
         expectType(NbtType.OBJECT);
-        ctx = ctx.push(Mode.COMPOUND);
+        ctx = ctx.push(Mode.OBJECT);
     }
 
     public void endCompound() throws IOException {
-        if (ctx.mode != Mode.COMPOUND)
+        if (ctx.mode != Mode.OBJECT)
             throw new MalformedNbtException("Not in a compound");
         expectType(NbtType.END);
         ctx = ctx.pop();

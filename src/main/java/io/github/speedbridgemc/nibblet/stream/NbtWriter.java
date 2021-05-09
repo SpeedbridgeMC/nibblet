@@ -19,9 +19,9 @@ public final class NbtWriter implements Closeable {
 
     private enum Mode {
         ROOT_UNDETERMINED(NbtType.END, NbtType.END),
-        ROOT_COMPOUND(NbtType.OBJECT, NbtType.END),
+        ROOT_OBJECT(NbtType.OBJECT, NbtType.END),
         ROOT_LIST(NbtType.ROOT_LIST, NbtType.END),
-        COMPOUND(NbtType.OBJECT, NbtType.END),
+        OBJECT(NbtType.OBJECT, NbtType.END),
         LIST(NbtType.LIST, NbtType.END),
         BYTE_ARRAY(NbtType.BYTE_ARRAY, NbtType.BYTE),
         INT_ARRAY(NbtType.INT_ARRAY, NbtType.INT),
@@ -52,7 +52,7 @@ public final class NbtWriter implements Closeable {
         }
 
         public void write(@NotNull DeferredWrite write) throws IOException {
-            if (mode == Mode.ROOT_COMPOUND)
+            if (mode == Mode.ROOT_OBJECT)
                 write.write();
             else
                 deferredWrites.add(write);
@@ -68,13 +68,13 @@ public final class NbtWriter implements Closeable {
                 out.write(listType.id());
             default:
                 streamHandler.writeInt(out, listSize);
-            case ROOT_COMPOUND:
-            case COMPOUND:
+            case ROOT_OBJECT:
+            case OBJECT:
                 break;
             }
             for (DeferredWrite write : deferredWrites)
                 write.write();
-            if (mode == Mode.COMPOUND)
+            if (mode == Mode.OBJECT)
                 out.write(NbtType.END.id());
         }
 
@@ -125,8 +125,8 @@ public final class NbtWriter implements Closeable {
     public @NotNull NbtWriter name(@NotNull String name) throws IOException {
         switch (ctx.mode) {
         case ROOT_UNDETERMINED:
-        case ROOT_COMPOUND:
-        case COMPOUND:
+        case ROOT_OBJECT:
+        case OBJECT:
             deferredName = name;
             break;
         default:
@@ -138,7 +138,7 @@ public final class NbtWriter implements Closeable {
     private void string(@NotNull String value) throws IOException {
         MUTF8Strings.EncodeResult res = MUTF8Strings.encode(value);
         streamHandler.writeUTFLength(out, res.utfLength());
-        out.write(res.buffer(), 0, res.utfLength());
+        res.write(out);
     }
 
     @FunctionalInterface
@@ -153,7 +153,7 @@ public final class NbtWriter implements Closeable {
             if (deferredName == null)
                 throw new MalformedNbtException("Missing root tag name");
             if (type == NbtType.OBJECT)
-                ctx = new Context(Mode.ROOT_COMPOUND, null);
+                ctx = new Context(Mode.ROOT_OBJECT, null);
             else if (type == NbtType.LIST) {
                 ctx = new Context(Mode.ROOT_LIST, null);
                 out.write(type.id());
@@ -163,7 +163,7 @@ public final class NbtWriter implements Closeable {
                 break;
             } else
                 throw new MalformedNbtException(type + " cannot be a root tag");
-        case ROOT_COMPOUND:
+        case ROOT_OBJECT:
             if (deferredName == null)
                 throw new MalformedNbtException("Missing tag name");
             out.write(type.id());
@@ -171,7 +171,7 @@ public final class NbtWriter implements Closeable {
             deferredName = null;
             write.write();
             break;
-        case COMPOUND:
+        case OBJECT:
             if (deferredName == null)
                 throw new MalformedNbtException("Missing tag name");
             final String thisDeferredName = deferredName;
@@ -295,12 +295,12 @@ public final class NbtWriter implements Closeable {
     }
 
     public @NotNull NbtWriter beginCompound() throws IOException {
-        pushCtx(Mode.COMPOUND);
+        pushCtx(Mode.OBJECT);
         return this;
     }
 
     public @NotNull NbtWriter endCompound() throws IOException {
-        endCtx(Mode.COMPOUND, "Tried to end compound before starting one");
+        endCtx(Mode.OBJECT, "Tried to end compound before starting one");
         return this;
     }
 
