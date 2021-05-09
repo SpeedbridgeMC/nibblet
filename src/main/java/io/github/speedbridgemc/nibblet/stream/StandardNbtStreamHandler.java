@@ -17,7 +17,8 @@ public class StandardNbtStreamHandler implements NbtStreamHandler {
     public StandardNbtStreamHandler(ByteOrder byteOrder) {
         this.byteOrder = byteOrder;
         tlScratchBuf = ThreadLocal.withInitial(() -> {
-            ByteBuffer buf = ByteBuffer.allocate(Double.BYTES);
+            ByteBuffer buf = ByteBuffer.allocate(Double.BYTES); // non-direct allocation is intentional here,
+                                                                // it allows us to use the faster read(byte[]) methods
             buf.order(byteOrder);
             return buf;
         });

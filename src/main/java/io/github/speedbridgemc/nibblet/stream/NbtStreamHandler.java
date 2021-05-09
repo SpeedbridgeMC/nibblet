@@ -7,7 +7,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Interface for handling a stream of NBT structure data.<p>
+ * This interface effectively describes how the NBT structure is laid out when serialized and how to deserialize it.
+ */
 public interface NbtStreamHandler {
+    /**
+     * Determines the size of a specific type's payload.<br>
+     * May return {@literal -1} if the type does not have a constant size.
+     * @param type type
+     * @return size of type's payload, or {@literal -1} if dynamic
+     */
     long payloadSize(@NotNull NbtType type);
 
     short readShort(@NotNull InputStream in) throws IOException;

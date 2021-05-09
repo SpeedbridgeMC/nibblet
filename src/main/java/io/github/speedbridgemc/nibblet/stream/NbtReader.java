@@ -261,9 +261,10 @@ public final class NbtReader implements Closeable {
         NbtType skippedType;
         if (ctx.mode == Mode.LIST)
             skippedType = ctx.itemType;
-        else if (thisType != null)
+        else if (thisType != null) {
             skippedType = thisType;
-        else
+            thisType = null;
+        } else
             skippedType = nextType();
         long bytesToSkip = streamHandler.payloadSize(skippedType);
         if (bytesToSkip >= 0) {
