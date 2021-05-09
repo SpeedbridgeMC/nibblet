@@ -64,17 +64,11 @@ public final class BedrockNetworkNbtStreamHandler extends StandardNbtStreamHandl
 
     @Override
     public void skipInt(@NotNull InputStream in) throws IOException {
-        int b;
-        do {
-            b = in.read();
-        } while ((b & 0x80) != 0);
+        readInt(in);
     }
 
     @Override
     public void skipLong(@NotNull InputStream in) throws IOException {
-        int b;
-        do {
-            b = in.read();
-        } while ((b & 0x80) != 0);
+        readLong(in);
     }
 }
