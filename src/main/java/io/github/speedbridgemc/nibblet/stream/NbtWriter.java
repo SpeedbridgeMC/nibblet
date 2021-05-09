@@ -294,12 +294,12 @@ public final class NbtWriter implements Closeable {
         return this;
     }
 
-    public @NotNull NbtWriter beginCompound() throws IOException {
+    public @NotNull NbtWriter beginObject() throws IOException {
         pushCtx(Mode.OBJECT);
         return this;
     }
 
-    public @NotNull NbtWriter endCompound() throws IOException {
+    public @NotNull NbtWriter endObject() throws IOException {
         endCtx(Mode.OBJECT, "Tried to end compound before starting one");
         return this;
     }

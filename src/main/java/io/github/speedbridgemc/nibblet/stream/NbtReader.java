@@ -97,12 +97,12 @@ public final class NbtReader implements Closeable {
         }
     }
 
-    public void beginCompound() throws IOException {
+    public void beginObject() throws IOException {
         expectType(NbtType.OBJECT);
         ctx = ctx.push(Mode.OBJECT);
     }
 
-    public void endCompound() throws IOException {
+    public void endObject() throws IOException {
         if (ctx.mode != Mode.OBJECT)
             throw new MalformedNbtException("Not in a compound");
         expectType(NbtType.END);
@@ -322,7 +322,7 @@ public final class NbtReader implements Closeable {
             endList();
             break;
         case OBJECT:
-            beginCompound();
+            beginObject();
             skippedType = nextType();
             while (skippedType != NbtType.END) {
                 bytesToSkip = streamHandler.readUTFLength(in);
@@ -331,7 +331,7 @@ public final class NbtReader implements Closeable {
                 skipValue();
                 skippedType = nextType();
             }
-            endCompound();
+            endObject();
             break;
         case INT_ARRAY:
             beginIntArray();

@@ -43,11 +43,11 @@ public final class Test {
              GZIPOutputStream out = new GZIPOutputStream(outUncompressed);
              NbtWriter writer = new NbtWriter(NbtFormat.JAVA, out)) {
             writer.name("test_root")
-                    .beginCompound()
+                    .beginObject()
                     .name("test_nested")
-                    .beginCompound()
+                    .beginObject()
                     .name("hello").stringValue("world")
-                    .endCompound()
+                    .endObject()
                     .name("test_int")
                     .intValue(24)
                     .name("test_list")
@@ -74,7 +74,7 @@ public final class Test {
                     .stringValue("3")
                     .endList()
                     .endList()
-                    .endCompound();
+                    .endObject();
         } catch (IOException e) {
             System.err.println("Failed to write to \"" + pathS + "\"!");
             e.printStackTrace();
@@ -98,13 +98,13 @@ public final class Test {
         try (OutputStream out = Files.newOutputStream(pathNet);
              NbtWriter writer = new NbtWriter(NbtFormat.BEDROCK_NETWORK, out)) {
             writer.name("net_test")
-                    .beginCompound()
+                    .beginObject()
                     .name("zero").intValue(0)
                     .name("negative_one").intValue(-1)
                     .name("positive_one").intValue(1)
                     .name("negative_two").longValue(-2)
                     .name("positive_two").longValue(2)
-                    .endCompound();
+                    .endObject();
         } catch (IOException e) {
             System.err.println("Failed to write to \"" + pathNet + "\"!");
             e.printStackTrace();

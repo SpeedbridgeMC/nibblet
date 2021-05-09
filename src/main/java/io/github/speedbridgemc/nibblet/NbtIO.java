@@ -118,10 +118,10 @@ public final class NbtIO {
     }
 
     private static @NotNull NbtIO.NamedNbtObject readRootCompound(@NotNull NbtReader reader) throws IOException {
-        reader.beginCompound();
+        reader.beginObject();
         String rootName = reader.nextName();
-        NbtObject objElem = readCompound(reader);
-        reader.endCompound();
+        NbtObject objElem = readObject(reader);
+        reader.endObject();
         return new NamedNbtObject(objElem, rootName);
     }
 
@@ -156,9 +156,9 @@ public final class NbtIO {
             reader.endList();
             return listBuilder.build();
         case OBJECT:
-            reader.beginCompound();
-            NbtObject objElem = readCompound(reader);
-            reader.endCompound();
+            reader.beginObject();
+            NbtObject objElem = readObject(reader);
+            reader.endObject();
             return objElem;
         case INT_ARRAY:
             reader.beginIntArray();
@@ -179,7 +179,7 @@ public final class NbtIO {
         }
     }
 
-    private static @NotNull NbtObject readCompound(@NotNull NbtReader reader) throws IOException {
+    private static @NotNull NbtObject readObject(@NotNull NbtReader reader) throws IOException {
         NbtObject.Builder builder = NbtObject.builder();
         NbtType type = reader.nextType();
         while (type != NbtType.END) {
@@ -204,7 +204,7 @@ public final class NbtIO {
             writer.name(rootName);
             switch (rootElement.type()) {
             case OBJECT:
-                writeCompound(writer, (NbtObjectView) rootElement);
+                writeObject(writer, (NbtObjectView) rootElement);
                 break;
             case LIST:
                 writeList(writer, (NbtListView) rootElement);
@@ -215,13 +215,13 @@ public final class NbtIO {
         }
     }
 
-    private static void writeCompound(@NotNull NbtWriter writer, @NotNull NbtObjectView element) throws IOException {
-        writer.beginCompound();
+    private static void writeObject(@NotNull NbtWriter writer, @NotNull NbtObjectView element) throws IOException {
+        writer.beginObject();
         for (NbtObjectView.Entry entry : element.entries()) {
             writer.name(entry.name());
             writeElement(writer, entry.element());
         }
-        writer.endCompound();
+        writer.endObject();
     }
 
     private static void writeList(@NotNull NbtWriter writer, @NotNull NbtListView element) throws IOException {
@@ -265,7 +265,7 @@ public final class NbtIO {
             writeList(writer, (NbtListView) element);
             break;
         case OBJECT:
-            writeCompound(writer, (NbtObjectView) element);
+            writeObject(writer, (NbtObjectView) element);
             break;
         case INT_ARRAY:
             NbtIntArrayView intArrElem = (NbtIntArrayView) element;
