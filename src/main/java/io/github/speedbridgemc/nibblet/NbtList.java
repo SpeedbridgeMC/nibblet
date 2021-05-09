@@ -119,7 +119,22 @@ public final class NbtList implements NbtElement, NbtListView {
 
             @Override
             public @NotNull Iterator<@NotNull NbtElement> iterator() {
-                return NbtList.this.iterator();
+                return new Iterator<NbtElement>() {
+                    private final Iterator<NbtElement> delegate = NbtList.this.iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return delegate.hasNext();
+                    }
+
+                    @Override
+                    public NbtElement next() {
+                        NbtElement next = delegate.next();
+                        if (next == null)
+                            return null;
+                        return next.view();
+                    }
+                };
             }
         };
     }

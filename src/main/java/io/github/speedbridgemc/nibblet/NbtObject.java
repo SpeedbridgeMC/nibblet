@@ -123,7 +123,25 @@ public final class NbtObject implements NbtElement, NbtObjectView {
 
             @Override
             public @NotNull Iterable<@NotNull Entry> entries() {
-                return NbtObject.this.entries();
+                return () -> new Iterator<Entry>() {
+                    private final Iterator<Entry> delegate = NbtObject.this.entries().iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return delegate.hasNext();
+                    }
+
+                    @Override
+                    public Entry next() {
+                        Entry next = delegate.next();
+                        if (next == null)
+                            return null;
+                        if (next.element().view() == next.element())
+                            // element is already immutable, don't bother allocating new Entry
+                            return next;
+                        return new Entry(next.name(), next.element().view());
+                    }
+                };
             }
 
             @Override

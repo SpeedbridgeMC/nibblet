@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'maven-publish'
+    id 'signing'
 }
 
 group 'io.github.speedbridge'
@@ -10,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:20.1.0'
+    compileOnly 'org.jetbrains:annotations:20.1.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
@@ -18,4 +20,68 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+ext {
+    isReleaseVersion = !version.endsWith("SNAPSHOT")
+}
+
+publishing {
+    repositories {
+        maven {
+            def releaseRepo = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotRepo = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = project.ext.isReleaseVersion ? releaseRepo : snapshotRepo
+            credentials {
+                username = rootProject.hasProperty('ossrhUsername') ? ossrhUsername : "Unknown user"
+                password = rootProject.hasProperty('ossrhPassword') ? ossrhPassword : "Unknown password"
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                groupId = rootProject.group
+                artifactId = project.name
+                version = project.version
+
+                name = project.name
+                description = project.description
+                url = 'https://speedbridgemc.github.io'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ADudeCalledLeo'
+                        name = 'Kfir Awad'
+                        email = 'kfirawad@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/SpeedbridgeMC/nibblet.git'
+                    developerConnection = 'scm:git:ssh://github.com:SpeedbridgeMC/nibblet.git'
+                    url = 'https://github.com/SpeedbridgeMC/jsonatom/nibblet/master'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications
+}
+tasks.withType(Sign) {
+    onlyIf { project.ext.isReleaseVersion }
 }
