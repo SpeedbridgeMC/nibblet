@@ -91,10 +91,10 @@ public final class NbtStringifier {
             out.println("]");
             break;
         case LONG_ARRAY:
-            NbtLongArrayView nbtLongTag = (NbtLongArrayView) nbt;
+            NbtLongArrayView nbtLongArr = (NbtLongArrayView) nbt;
             out.print("[");
-            for (int i = 0, length = nbtLongTag.length(); i < length; i++) {
-                out.format("%d", nbtLongTag.get(i));
+            for (int i = 0, length = nbtLongArr.length(); i < length; i++) {
+                out.format("%d", nbtLongArr.get(i));
                 if (i < length - 1)
                     out.print(", ");
             }
