@@ -1,6 +1,5 @@
 package io.github.speedbridgemc.nibblet.stream;
 
-import io.github.speedbridgemc.nibblet.MalformedNbtException;
 import io.github.speedbridgemc.nibblet.NbtType;
 import io.github.speedbridgemc.nibblet.util.MUTF8Strings;
 import org.jetbrains.annotations.NotNull;
@@ -119,7 +118,7 @@ public final class NbtWriter implements Closeable {
             else
                 ctx.writeDeferred();
         } else
-            throw new MalformedNbtException(errMsg);
+            throw new MalformedNbtDataException(errMsg);
     }
 
     public @NotNull NbtWriter name(@NotNull String name) throws IOException {
@@ -130,7 +129,7 @@ public final class NbtWriter implements Closeable {
             deferredName = name;
             break;
         default:
-            throw new MalformedNbtException("Names are not allowed outside of compound tags");
+            throw new MalformedNbtDataException("Names are not allowed outside of compound tags");
         }
         return this;
     }
@@ -151,7 +150,7 @@ public final class NbtWriter implements Closeable {
         switch (ctx.mode) {
         case ROOT_UNDETERMINED:
             if (deferredName == null)
-                throw new MalformedNbtException("Missing root tag name");
+                throw new MalformedNbtDataException("Missing root tag name");
             if (type == NbtType.OBJECT)
                 ctx = new Context(Mode.ROOT_OBJECT, null);
             else if (type == NbtType.LIST) {
@@ -162,10 +161,10 @@ public final class NbtWriter implements Closeable {
                 list = true;
                 break;
             } else
-                throw new MalformedNbtException(type + " cannot be a root tag");
+                throw new MalformedNbtDataException(type + " cannot be a root tag");
         case ROOT_OBJECT:
             if (deferredName == null)
-                throw new MalformedNbtException("Missing tag name");
+                throw new MalformedNbtDataException("Missing tag name");
             out.write(type.id());
             string(deferredName);
             deferredName = null;
@@ -173,7 +172,7 @@ public final class NbtWriter implements Closeable {
             break;
         case OBJECT:
             if (deferredName == null)
-                throw new MalformedNbtException("Missing tag name");
+                throw new MalformedNbtDataException("Missing tag name");
             final String thisDeferredName = deferredName;
             deferredName = null;
             ctx.write(() -> {
@@ -193,7 +192,7 @@ public final class NbtWriter implements Closeable {
                 ctx.write(write);
                 ctx.listSize += size;
             } else
-                throw new MalformedNbtException("Tried to add " + type + " to " + ctx.mode);
+                throw new MalformedNbtDataException("Tried to add " + type + " to " + ctx.mode);
             break;
         default:
             throw new InternalError("Unhandled context mode " + ctx.mode);
@@ -218,7 +217,7 @@ public final class NbtWriter implements Closeable {
             if (ctx.listType == NbtType.END)
                 ctx.listType = type;
             else if (!matches)
-                throw new MalformedNbtException("Tried to add " + type + " to list of " + ctx.listType);
+                throw new MalformedNbtDataException("Tried to add " + type + " to list of " + ctx.listType);
             ctx.write(write);
             ctx.listSize += size;
         }
@@ -300,7 +299,7 @@ public final class NbtWriter implements Closeable {
     }
 
     public @NotNull NbtWriter endObject() throws IOException {
-        endCtx(Mode.OBJECT, "Tried to end compound before starting one");
+        endCtx(Mode.OBJECT, "Tried to end object before starting one");
         return this;
     }
 
@@ -347,7 +346,7 @@ public final class NbtWriter implements Closeable {
     @Override
     public void close() throws IOException {
         if (ctx.hasNext())
-            throw new MalformedNbtException("Unterminated " + ctx.mode);
+            throw new MalformedNbtDataException("Unterminated " + ctx.mode);
         ctx.writeDeferred();
         out.close();
     }

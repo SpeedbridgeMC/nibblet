@@ -159,7 +159,7 @@ public final class Test {
             System.out.println("Reading from file \"" + pathBig + "\":");
             NbtStringifier.printWikiVGString(tag.name(), tag.element());
         } catch (IOException e) {
-            System.err.print("Failed to read from \"" + pathBig + "\"");
+            System.err.println("Failed to read from \"" + pathBig + "\"");
             e.printStackTrace();
         }
     }

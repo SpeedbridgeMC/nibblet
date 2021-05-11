@@ -1,5 +1,6 @@
 package io.github.speedbridgemc.nibblet;
 
+import io.github.speedbridgemc.nibblet.stream.MalformedNbtDataException;
 import io.github.speedbridgemc.nibblet.stream.NbtReader;
 import io.github.speedbridgemc.nibblet.stream.NbtStreamHandler;
 import io.github.speedbridgemc.nibblet.stream.NbtWriter;
@@ -94,7 +95,7 @@ public final class NbtIO {
      * @param streamHandler stream handler
      * @param in input stream
      * @return named element that was read
-     * @throws MalformedNbtException if the element data is malformed.
+     * @throws MalformedNbtDataException if the element data is malformed.
      * @throws IOException if an I/O error occurred.
      */
     public static @NotNull Named<? extends NbtRootElement> read(@NotNull NbtStreamHandler streamHandler, @NotNull InputStream in) throws IOException {
@@ -105,7 +106,7 @@ public final class NbtIO {
             else if (rootType == NbtType.OBJECT)
                 return readRootCompound(reader);
             else
-                throw new MalformedNbtException("Unsupported root element type " + rootType);
+                throw new MalformedNbtDataException("Unsupported root element type " + rootType);
         }
     }
 
@@ -175,7 +176,7 @@ public final class NbtIO {
             reader.endLongArray();
             return NbtLongArray.copyOf(longArr);
         default:
-            throw new MalformedNbtException("Unreadable element type " + type);
+            throw new MalformedNbtDataException("Unreadable element type " + type);
         }
     }
 
@@ -210,7 +211,7 @@ public final class NbtIO {
                 writeList(writer, (NbtListView) rootElement);
                 break;
             default:
-                throw new MalformedNbtException("Unsupported root element type " + rootElement.type());
+                throw new MalformedNbtDataException("Unsupported root element type " + rootElement.type());
             }
         }
     }
@@ -282,7 +283,7 @@ public final class NbtIO {
             writer.endLongArray();
             break;
         default:
-            throw new MalformedNbtException("Unwritable element type " + element.type());
+            throw new MalformedNbtDataException("Unwritable element type " + element.type());
         }
     }
 }

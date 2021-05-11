@@ -1,6 +1,5 @@
 package io.github.speedbridgemc.nibblet.stream;
 
-import io.github.speedbridgemc.nibblet.MalformedNbtException;
 import io.github.speedbridgemc.nibblet.NbtType;
 import io.github.speedbridgemc.nibblet.util.MUTF8Strings;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +38,7 @@ public final class NbtReader implements Closeable {
         private final @Nullable Context next;
         public @NotNull NbtType type;
         public @NotNull NbtType itemType;
+        public int size;
         public int itemsRemaining;
 
         private Context(@NotNull Mode mode, @Nullable Context next) {
@@ -46,6 +46,7 @@ public final class NbtReader implements Closeable {
             this.next = next;
             type = NbtType.LIST;
             itemType = NbtType.END;
+            size = 0;
             itemsRemaining = 0;
         }
         
@@ -71,7 +72,7 @@ public final class NbtReader implements Closeable {
         byte typeId = (byte) (in.read() & 0xFF);
         NbtType type = NbtType.fromId(typeId);
         if (type == null)
-            throw new MalformedNbtException("Unknown tag type ID " + typeId);
+            throw new MalformedNbtDataException("Unknown tag type ID " + typeId);
         if (firstByte) {
             firstByte = false;
             if (type == NbtType.LIST)
@@ -85,14 +86,14 @@ public final class NbtReader implements Closeable {
         if (ctx.mode == Mode.LIST) {
             if (ctx.itemType == expectedType) {
                 if (--ctx.itemsRemaining < 0)
-                    throw new MalformedNbtException("List or array is too small");
+                    throw new MalformedNbtDataException("List or array is too small");
             } else
-                throw new MalformedNbtException("Tried to read " + expectedType + " from list or array of " + ctx.itemType);
+                throw new MalformedNbtDataException("Tried to read " + expectedType + " from list or array of " + ctx.itemType);
         } else {
             if (thisType == null)
                 nextType();
             if (thisType != expectedType)
-                throw new MalformedNbtException("Expected " + expectedType + ", got " + thisType);
+                throw new MalformedNbtDataException("Expected " + expectedType + ", got " + thisType);
             thisType = null;
         }
     }
@@ -104,107 +105,85 @@ public final class NbtReader implements Closeable {
 
     public void endObject() throws IOException {
         if (ctx.mode != Mode.OBJECT)
-            throw new MalformedNbtException("Not in a compound");
+            throw new MalformedNbtDataException("Not in an object");
         expectType(NbtType.END);
         ctx = ctx.pop();
     }
 
-    public void beginList() throws IOException {
-        expectType(NbtType.LIST);
+    private void beginList0(@NotNull NbtType type, @Nullable NbtType itemType, boolean singleton) throws IOException {
+        expectType(type);
         ctx = ctx.push(Mode.LIST);
-        ctx.type = NbtType.LIST;
-        ctx.itemType = nextType();
-        ctx.itemsRemaining = streamHandler.readInt(in);
+        ctx.type = type;
+        if (itemType == null)
+            itemType = nextType();
+        ctx.itemType = itemType;
+        ctx.size = ctx.itemsRemaining = singleton ? 1 : streamHandler.readInt(in);
+    }
+
+    private void endList0(@NotNull NbtType type) throws IOException {
+        if (ctx.type != type)
+            throw new MalformedNbtDataException("Not in a " + type);
+        if (ctx.itemsRemaining > 0)
+            throw new MalformedNbtDataException("Expected end of list or array");
+        ctx = ctx.pop();
+    }
+
+    public void beginList() throws IOException {
+        beginList0(NbtType.LIST, null, false);
     }
 
     public @NotNull NbtType listItemType() throws IOException {
         if (ctx.mode != Mode.LIST)
-            throw new MalformedNbtException("Not in a list or array");
+            throw new MalformedNbtDataException("Not in a list or array");
         return ctx.itemType;
     }
 
     public int listSize() throws IOException {
         if (ctx.mode != Mode.LIST)
-            throw new MalformedNbtException("Not in a list or array");
-        return ctx.itemsRemaining;
+            throw new MalformedNbtDataException("Not in a list or array");
+        return ctx.size;
     }
 
     public boolean listHasNext() throws IOException {
         if (ctx.mode != Mode.LIST)
-            throw new MalformedNbtException("Not in a list or array");
+            throw new MalformedNbtDataException("Not in a list or array");
         return ctx.itemsRemaining > 0;
     }
 
     public void endList() throws IOException {
-        if (ctx.type != NbtType.LIST)
-            throw new MalformedNbtException("Not in a " + NbtType.LIST);
-        if (ctx.itemsRemaining > 0)
-            throw new MalformedNbtException("Expected end of list or array");
-        ctx = ctx.pop();
+        endList0(NbtType.LIST);
     }
 
     public void beginRootList() throws IOException {
-        expectType(NbtType.ROOT_LIST);
-        ctx = ctx.push(Mode.LIST);
-        ctx.type = NbtType.ROOT_LIST;
-        ctx.itemType = nextType();
-        ctx.itemsRemaining = 1;
+        beginList0(NbtType.ROOT_LIST, null, true);
     }
 
     public void endRootList() throws IOException {
-        if (ctx.type != NbtType.ROOT_LIST)
-            throw new MalformedNbtException("Not in a " + NbtType.ROOT_LIST);
-        if (ctx.itemsRemaining > 0)
-            throw new MalformedNbtException("Expected end of list or array");
-        ctx = ctx.pop();
+        endList0(NbtType.ROOT_LIST);
     }
 
     public void beginByteArray() throws IOException {
-        expectType(NbtType.BYTE_ARRAY);
-        ctx = ctx.push(Mode.LIST);
-        ctx.type = NbtType.BYTE_ARRAY;
-        ctx.itemType = NbtType.BYTE;
-        ctx.itemsRemaining = streamHandler.readInt(in);
+        beginList0(NbtType.BYTE_ARRAY, NbtType.BYTE, false);
     }
 
     public void endByteArray() throws IOException {
-        if (ctx.type != NbtType.BYTE_ARRAY)
-            throw new MalformedNbtException("Not in a " + NbtType.BYTE_ARRAY);
-        if (ctx.itemsRemaining > 0)
-            throw new MalformedNbtException("Expected end of list or array");
-        ctx = ctx.pop();
+        endList0(NbtType.BYTE_ARRAY);
     }
 
     public void beginIntArray() throws IOException {
-        expectType(NbtType.INT_ARRAY);
-        ctx = ctx.push(Mode.LIST);
-        ctx.type = NbtType.INT_ARRAY;
-        ctx.itemType = NbtType.INT;
-        ctx.itemsRemaining = streamHandler.readInt(in);
+        beginList0(NbtType.INT_ARRAY, NbtType.INT, false);
     }
 
     public void endIntArray() throws IOException {
-        if (ctx.type != NbtType.INT_ARRAY)
-            throw new MalformedNbtException("Not in a " + NbtType.INT_ARRAY);
-        if (ctx.itemsRemaining > 0)
-            throw new MalformedNbtException("Expected end of list or array");
-        ctx = ctx.pop();
+        endList0(NbtType.INT_ARRAY);
     }
 
     public void beginLongArray() throws IOException {
-        expectType(NbtType.LONG_ARRAY);
-        ctx = ctx.push(Mode.LIST);
-        ctx.type = NbtType.LONG_ARRAY;
-        ctx.itemType = NbtType.LONG;
-        ctx.itemsRemaining = streamHandler.readInt(in);
+        beginList0(NbtType.LONG_ARRAY, NbtType.LONG, false);
     }
 
     public void endLongArray() throws IOException {
-        if (ctx.type != NbtType.LONG_ARRAY)
-            throw new MalformedNbtException("Not in a " + NbtType.LONG_ARRAY);
-        if (ctx.itemsRemaining > 0)
-            throw new MalformedNbtException("Expected end of list or array");
-        ctx = ctx.pop();
+        endList0(NbtType.LONG_ARRAY);
     }
 
     public @NotNull String nextName() throws IOException {
@@ -259,9 +238,11 @@ public final class NbtReader implements Closeable {
 
     public void skipValue() throws IOException {
         NbtType skippedType;
-        if (ctx.mode == Mode.LIST)
+        if (ctx.mode == Mode.LIST) {
             skippedType = ctx.itemType;
-        else if (thisType != null) {
+            if (--ctx.itemsRemaining < 0)
+                throw new MalformedNbtDataException("List or array is too small");
+        } else if (thisType != null) {
             skippedType = thisType;
             thisType = null;
         } else
@@ -295,10 +276,10 @@ public final class NbtReader implements Closeable {
             break;
         case BYTE_ARRAY:
             beginByteArray();
-            bytesToSkip = ctx.itemsRemaining;
+            bytesToSkip = ctx.size;
             if (in.skip(bytesToSkip) < bytesToSkip)
-                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
-            ctx.itemsRemaining = 0;
+                throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.size + " entries)");
+            ctx.size = 0;
             endByteArray();
             break;
         case STRING:
@@ -310,12 +291,11 @@ public final class NbtReader implements Closeable {
             beginList();
             payloadSize = streamHandler.payloadSize(ctx.itemType);
             if (payloadSize >= 0) {
-                bytesToSkip = payloadSize * ctx.itemsRemaining;
+                bytesToSkip = payloadSize * ctx.size;
                 if (in.skip(bytesToSkip) < bytesToSkip)
-                    throw new IOException("Failed to skip entire list of " + ctx.itemType + " (" + ctx.itemsRemaining + " entries)");
+                    throw new IOException("Failed to skip entire list of " + ctx.itemType + " (" + ctx.size + " entries)");
             } else {
-                int itemsRemaining = ctx.itemsRemaining;
-                for (int i = 0; i < itemsRemaining; i++)
+                for (int i = 0; i < ctx.size; i++)
                     skipValue();
             }
             ctx.itemsRemaining = 0;
@@ -337,12 +317,11 @@ public final class NbtReader implements Closeable {
             beginIntArray();
             payloadSize = streamHandler.payloadSize(NbtType.INT);
             if (payloadSize >= 0) {
-                bytesToSkip = payloadSize * ctx.itemsRemaining;
+                bytesToSkip = payloadSize * ctx.size;
                 if (in.skip(bytesToSkip) < bytesToSkip)
-                    throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+                    throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.size + " entries)");
             } else {
-                int itemsRemaining = ctx.itemsRemaining;
-                for (int i = 0; i < itemsRemaining; i++)
+                for (int i = 0; i < ctx.size; i++)
                     skipValue();
             }
             ctx.itemsRemaining = 0;
@@ -352,12 +331,11 @@ public final class NbtReader implements Closeable {
             beginLongArray();
             payloadSize = streamHandler.payloadSize(NbtType.LONG);
             if (payloadSize >= 0) {
-                bytesToSkip = payloadSize * ctx.itemsRemaining;
+                bytesToSkip = payloadSize * ctx.size;
                 if (in.skip(bytesToSkip) < bytesToSkip)
-                    throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.itemsRemaining + " entries)");
+                    throw new IOException("Failed to skip entire " + ctx.type + " (" + ctx.size + " entries)");
             } else {
-                int itemsRemaining = ctx.itemsRemaining;
-                for (int i = 0; i < itemsRemaining; i++)
+                for (int i = 0; i < ctx.size; i++)
                     skipValue();
             }
             ctx.itemsRemaining = 0;
