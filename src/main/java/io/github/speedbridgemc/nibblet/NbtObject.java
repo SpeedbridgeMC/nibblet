@@ -123,42 +123,23 @@ public final class NbtObject implements NbtElement, NbtObjectView {
 
             @Override
             public @NotNull Iterable<@NotNull Entry> entries() {
-                return new Iterable<Entry>() {
-                    private final Set<Entry> entrySet = entrySet();
+                return () -> new Iterator<Entry>() {
+                    private final Iterator<Entry> delegate = NbtObject.this.entries().iterator();
 
                     @Override
-                    public @NotNull Iterator<@NotNull Entry> iterator() {
-                        return new Iterator<Entry>() {
-                            private final Iterator<Entry> delegate = entrySet.iterator();
-
-                            @Override
-                            public boolean hasNext() {
-                                return delegate.hasNext();
-                            }
-
-                            @Override
-                            public Entry next() {
-                                Entry next = delegate.next();
-                                if (next == null)
-                                    return null;
-                                if (next.element().view() == next.element())
-                                    // element is already immutable, don't bother allocating new Entry
-                                    return next;
-                                return new Entry(next.name(), next.element().view());
-                            }
-                        };
+                    public boolean hasNext() {
+                        return delegate.hasNext();
                     }
 
                     @Override
-                    public @NotNull Spliterator<@NotNull Entry> spliterator() {
-                        return entrySet.stream()
-                                .map(entry -> {
-                                    if (entry.element().view() == entry.element())
-                                        // element is already immutable, don't bother allocating new Entry
-                                        return entry;
-                                    return new Entry(entry.name(), entry.element().view());
-                                })
-                                .spliterator();
+                    public Entry next() {
+                        Entry next = delegate.next();
+                        if (next == null)
+                            return null;
+                        if (next.element().view() == next.element())
+                            // element is already immutable, don't bother allocating new Entry
+                            return next;
+                        return new Entry(next.name(), next.element().view());
                     }
                 };
             }
@@ -234,7 +215,8 @@ public final class NbtObject implements NbtElement, NbtObjectView {
         return nameSet;
     }
 
-    private @NotNull Set<@NotNull Entry> entrySet() {
+    @Override
+    public @NotNull Iterable<@NotNull Entry> entries() {
         if (entrySet == null) {
             entrySet = new LinkedHashSet<>(backingMap.size());
             for (Map.Entry<String, NbtElement> entry : backingMap.entrySet())
@@ -242,11 +224,6 @@ public final class NbtObject implements NbtElement, NbtObjectView {
             entrySet = Collections.unmodifiableSet(entrySet);
         }
         return entrySet;
-    }
-
-    @Override
-    public @NotNull Iterable<@NotNull Entry> entries() {
-        return entrySet();
     }
 
     public @Nullable NbtElement put(@NotNull String name, @NotNull NbtElement element) {
@@ -263,7 +240,7 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     }
 
     public void putBoolean(@NotNull String name, boolean value) {
-        put(name, NbtByte.of((byte) (value ? 1 : 0)));
+        putByte(name, (byte) (value ? 1 : 0));
     }
 
     public void putShort(@NotNull String name, short value) {
