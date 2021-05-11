@@ -123,23 +123,42 @@ public final class NbtObject implements NbtElement, NbtObjectView {
 
             @Override
             public @NotNull Iterable<@NotNull Entry> entries() {
-                return () -> new Iterator<Entry>() {
-                    private final Iterator<Entry> delegate = NbtObject.this.entries().iterator();
+                return new Iterable<Entry>() {
+                    private final Set<Entry> entrySet = entrySet();
 
                     @Override
-                    public boolean hasNext() {
-                        return delegate.hasNext();
+                    public @NotNull Iterator<@NotNull Entry> iterator() {
+                        return new Iterator<Entry>() {
+                            private final Iterator<Entry> delegate = entrySet.iterator();
+
+                            @Override
+                            public boolean hasNext() {
+                                return delegate.hasNext();
+                            }
+
+                            @Override
+                            public Entry next() {
+                                Entry next = delegate.next();
+                                if (next == null)
+                                    return null;
+                                if (next.element().view() == next.element())
+                                    // element is already immutable, don't bother allocating new Entry
+                                    return next;
+                                return new Entry(next.name(), next.element().view());
+                            }
+                        };
                     }
 
                     @Override
-                    public Entry next() {
-                        Entry next = delegate.next();
-                        if (next == null)
-                            return null;
-                        if (next.element().view() == next.element())
-                            // element is already immutable, don't bother allocating new Entry
-                            return next;
-                        return new Entry(next.name(), next.element().view());
+                    public @NotNull Spliterator<@NotNull Entry> spliterator() {
+                        return entrySet.stream()
+                                .map(entry -> {
+                                    if (entry.element().view() == entry.element())
+                                        // element is already immutable, don't bother allocating new Entry
+                                        return entry;
+                                    return new Entry(entry.name(), entry.element().view());
+                                })
+                                .spliterator();
                     }
                 };
             }
@@ -215,8 +234,7 @@ public final class NbtObject implements NbtElement, NbtObjectView {
         return nameSet;
     }
 
-    @Override
-    public @NotNull Iterable<@NotNull Entry> entries() {
+    private @NotNull Set<@NotNull Entry> entrySet() {
         if (entrySet == null) {
             entrySet = new LinkedHashSet<>(backingMap.size());
             for (Map.Entry<String, NbtElement> entry : backingMap.entrySet())
@@ -226,10 +244,18 @@ public final class NbtObject implements NbtElement, NbtObjectView {
         return entrySet;
     }
 
+    @Override
+    public @NotNull Iterable<@NotNull Entry> entries() {
+        return entrySet();
+    }
+
     public @Nullable NbtElement put(@NotNull String name, @NotNull NbtElement element) {
         if (element == this)
             throw new IllegalArgumentException("Can't add tag as its own child!");
-        return backingMap.put(name, element);
+        NbtElement oldElement = backingMap.put(name, element);
+        if (element != oldElement)
+            entrySet = null; // invalidate the entry set, will create a new one on demand
+        return oldElement;
     }
 
     public void putByte(@NotNull String name, byte value) {
@@ -277,7 +303,10 @@ public final class NbtObject implements NbtElement, NbtObjectView {
     }
 
     public @Nullable NbtElement remove(@NotNull String name) {
-        return backingMap.remove(name);
+        NbtElement elem = backingMap.remove(name);
+        if (elem != null)
+            entrySet = null; // invalidate the entry set, will create a new one on demand
+        return elem;
     }
 
     @Override
