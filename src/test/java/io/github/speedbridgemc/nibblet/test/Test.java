@@ -85,9 +85,21 @@ public final class Test {
              NbtWriter writer = new NbtWriter(NbtFormat.BEDROCK, out)) {
             writer.name("root_list")
                     .beginList()
+                    .beginList()
+                    .doubleValue(1)
+                    .doubleValue(2.5)
+                    .doubleValue(3)
+                    .endList()
+                    .beginList()
+                    .intArray(3, 6, 9)
+                    .intArray(2, 4, 6)
+                    .intArray(1, 2, 3)
+                    .endList()
+                    .beginList()
                     .stringValue("a")
                     .stringValue("b")
                     .stringValue("c")
+                    .endList()
                     .endList();
         } catch (IOException e) {
             System.err.println("Failed to write to \"" + pathSL + "\"!");

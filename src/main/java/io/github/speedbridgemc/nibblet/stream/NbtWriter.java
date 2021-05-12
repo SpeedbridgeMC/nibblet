@@ -292,6 +292,27 @@ public final class NbtWriter implements Closeable {
         }, valuesCopy.length);
         return this;
     }
+    
+    public @NotNull NbtWriter byteArray(byte @NotNull ... values) throws IOException {
+        beginByteArray();
+        byteValues(values);
+        endByteArray();
+        return this;
+    }
+
+    public @NotNull NbtWriter intArray(int @NotNull ... values) throws IOException {
+        beginIntArray();
+        intValues(values);
+        endIntArray();
+        return this;
+    }
+
+    public @NotNull NbtWriter longArray(long @NotNull ... values) throws IOException {
+        beginLongArray();
+        longValues(values);
+        endLongArray();
+        return this;
+    }
 
     public @NotNull NbtWriter beginObject() throws IOException {
         pushCtx(Mode.OBJECT);
@@ -303,9 +324,14 @@ public final class NbtWriter implements Closeable {
         return this;
     }
 
-    public @NotNull NbtWriter beginList() throws IOException {
+    public @NotNull NbtWriter beginList(@NotNull NbtType type) throws IOException {
         pushCtx(Mode.LIST);
+        ctx.listType = type;
         return this;
+    }
+
+    public @NotNull NbtWriter beginList() throws IOException {
+        return beginList(NbtType.END);
     }
 
     public @NotNull NbtWriter endList() throws IOException {

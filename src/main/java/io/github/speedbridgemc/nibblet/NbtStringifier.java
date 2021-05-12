@@ -5,12 +5,20 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 
 /**
  * Provides utility methods for representing NBT structures as strings.
  */
 public final class NbtStringifier {
     private NbtStringifier() { }
+
+    private static final DecimalFormat DECIMAL_FORMAT;
+
+    static {
+        DECIMAL_FORMAT = new DecimalFormat();
+        DECIMAL_FORMAT.setMaximumFractionDigits(340); // DecimalFormat.DOUBLE_FRACTION_DIGITS
+    }
 
     /**
      * Prints an NBT structure using <a href="https://wiki.vg/NBT">wiki.vg</a>'s format to {@link System#out}.
@@ -36,22 +44,14 @@ public final class NbtStringifier {
         out.format("%s%s(%s): ", indent, nbt.type(), name.isEmpty() ? "None" : "'" + name + "'");
         switch (nbt.type()) {
         case BYTE:
-            out.format("%d%n", ((NbtByte) nbt).value());
-            break;
         case SHORT:
-            out.format("%d%n", ((NbtShort) nbt).value());
-            break;
         case INT:
-            out.format("%d%n", ((NbtInt) nbt).value());
-            break;
         case LONG:
-            out.format("%d%n", ((NbtLong) nbt).value());
+            out.format("%d%n", ((NbtNumber) nbt).valueAsNumber().longValue());
             break;
         case FLOAT:
-            out.format("%g%n", ((NbtFloat) nbt).value());
-            break;
         case DOUBLE:
-            out.format("%g%n", ((NbtDouble) nbt).value());
+            out.format("%s%n", DECIMAL_FORMAT.format(((NbtNumber) nbt).valueAsNumber().doubleValue()));
             break;
         case BYTE_ARRAY:
             NbtByteArrayView nbtByteArr = (NbtByteArrayView) nbt;
