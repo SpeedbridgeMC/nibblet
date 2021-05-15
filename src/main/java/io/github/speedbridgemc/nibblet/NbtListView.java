@@ -2,9 +2,9 @@ package io.github.speedbridgemc.nibblet;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
     @ApiStatus.NonExtendable
@@ -68,49 +68,49 @@ public interface NbtListView extends NbtRootElement, Iterable<NbtElement> {
         return defaultValue;
     }
 
-    default byte @NotNull [] getByteArray(int i) {
+    default @NotNull Optional<byte[]> getByteArray(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtByteArrayView)
-            return ((NbtByteArrayView) nbt).toArray();
-        return EMPTY_BYTE_ARRAY;
+            return Optional.of(((NbtByteArrayView) nbt).toArray());
+        return Optional.empty();
     }
 
-    default @NotNull String getString(int i, @NotNull String defaultValue) {
+    default @NotNull Optional<String> getString(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtString)
-            return ((NbtString) nbt).value();
-        return defaultValue;
+            return Optional.of(((NbtString) nbt).value());
+        return Optional.empty();
     }
 
-    default @Nullable NbtListView getList(int i, @NotNull NbtType itemType) {
+    default @NotNull Optional<NbtListView> getList(int i, @NotNull NbtType itemType) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtListView) {
             NbtListView listTag = ((NbtListView) nbt).view();
             if (listTag.itemType() == itemType)
-                return listTag;
+                return Optional.of(listTag);
         }
-        return null;
+        return Optional.empty();
     }
 
-    default @Nullable NbtObjectView getObject(int i) {
+    default @NotNull Optional<NbtObjectView> getObject(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtObjectView)
-            return ((NbtObjectView) nbt).view();
-        return null;
+            return Optional.of(((NbtObjectView) nbt).view());
+        return Optional.empty();
     }
 
-    default int @NotNull [] getIntArray(int i) {
+    default @NotNull Optional<int[]> getIntArray(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtIntArrayView)
-            return ((NbtIntArrayView) nbt).toArray();
-        return EMPTY_INT_ARRAY;
+            return Optional.of(((NbtIntArrayView) nbt).toArray());
+        return Optional.empty();
     }
 
-    default long @NotNull [] getLongArray(int i) {
+    default @NotNull Optional<long[]> getLongArray(int i) {
         NbtElement nbt = get(i);
         if (nbt instanceof NbtLongArrayView)
-            return ((NbtLongArrayView) nbt).toArray();
-        return EMPTY_LONG_ARRAY;
+            return Optional.of(((NbtLongArrayView) nbt).toArray());
+        return Optional.empty();
     }
 
     @Override

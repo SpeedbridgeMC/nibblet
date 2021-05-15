@@ -7,23 +7,19 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface NbtElement {
     /**
-     * An empty array of {@code byte}s.
-     */
-    byte[] EMPTY_BYTE_ARRAY = new byte[0];
-    /**
-     * An empty array of {@code int}s.
-     */
-    int[] EMPTY_INT_ARRAY = new int[0];
-    /**
-     * An empty array of {@code long}s.
-     */
-    long[] EMPTY_LONG_ARRAY = new long[0];
-
-    /**
      * Gets this NBT element's type.
      * @return NBT element type
      */
     @NotNull NbtType type();
+
+    /**
+     * Checks if this NBT element is of the given type.
+     * @param type type to check
+     * @return {@code true} if element is of type, {@code false} otherwise
+     */
+    default boolean isOf(@NotNull NbtType type) {
+        return type == type();
+    }
 
     /**
      * Creates a shallow copy of this NBT element.

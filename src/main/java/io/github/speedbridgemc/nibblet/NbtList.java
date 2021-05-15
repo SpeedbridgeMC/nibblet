@@ -22,7 +22,7 @@ public final class NbtList implements NbtElement, NbtListView {
         public @NotNull Builder add(@NotNull NbtElement value) {
             if (itemType == NbtType.END)
                 itemType = value.type();
-            else if (itemType != value.type())
+            else if (!value.isOf(itemType))
                 throw new IllegalArgumentException("Tried to add tag of type " + value.type() + " to list of type " + itemType + "!");
             backingList.add(value);
             return this;
@@ -136,6 +136,17 @@ public final class NbtList implements NbtElement, NbtListView {
                     }
                 };
             }
+
+            @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+            @Override
+            public boolean equals(Object obj) {
+                return NbtList.this.equals(obj);
+            }
+
+            @Override
+            public int hashCode() {
+                return NbtList.this.hashCode();
+            }
         };
     }
 
@@ -182,15 +193,17 @@ public final class NbtList implements NbtElement, NbtListView {
         return backingList.get(i);
     }
 
-    private void checkItemType(@NotNull NbtElement nbt) {
+    private void checkItem(@NotNull NbtElement nbt) {
+        if (nbt == this)
+            throw new IllegalArgumentException("Can't add list to itself!");
         if (itemType == NbtType.END)
             itemType = nbt.type();
-        else if (itemType != nbt.type())
+        else if (!nbt.isOf(itemType))
             throw new IllegalArgumentException("Tried to add tag of type " + nbt.type() + " to list of type " + itemType + "!");
     }
 
     public @NotNull NbtElement set(int i, @NotNull NbtElement v) {
-        checkItemType(v);
+        checkItem(v);
         return backingList.set(i, v);
     }
 
@@ -239,7 +252,7 @@ public final class NbtList implements NbtElement, NbtListView {
     }
 
     public boolean add(@NotNull NbtElement v) {
-        checkItemType(v);
+        checkItem(v);
         return backingList.add(v);
     }
 
@@ -336,7 +349,7 @@ public final class NbtList implements NbtElement, NbtListView {
         while (e1.hasNext() && e2.hasNext()) {
             NbtElement o1 = e1.next();
             NbtElement o2 = e2.next();
-            if (!o1.equals(o2))
+            if (!Objects.equals(o1, o2))
                 return false;
         }
         return !(e1.hasNext() || e2.hasNext());

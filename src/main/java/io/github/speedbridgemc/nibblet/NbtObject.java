@@ -144,12 +144,9 @@ public final class NbtObject implements NbtElement, NbtObjectView {
                 };
             }
 
+            @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
             @Override
             public boolean equals(Object obj) {
-                if (obj == this)
-                    return true;
-                if (!(obj instanceof NbtObjectView))
-                    return false;
                 return NbtObject.this.equals(obj);
             }
 
@@ -228,7 +225,7 @@ public final class NbtObject implements NbtElement, NbtObjectView {
 
     public @Nullable NbtElement put(@NotNull String name, @NotNull NbtElement element) {
         if (element == this)
-            throw new IllegalArgumentException("Can't add tag as its own child!");
+            throw new IllegalArgumentException("Can't add object to itself!");
         NbtElement oldElement = backingMap.put(name, element);
         if (element != oldElement)
             entrySet = null; // invalidate the entry set, will create a new one on demand
