@@ -72,7 +72,7 @@ publishing {
                 scm {
                     connection = 'scm:git:git://github.com/SpeedbridgeMC/nibblet.git'
                     developerConnection = 'scm:git:ssh://github.com:SpeedbridgeMC/nibblet.git'
-                    url = 'https://github.com/SpeedbridgeMC/jsonatom/nibblet/master'
+                    url = 'https://github.com/SpeedbridgeMC/nibblet/tree/master'
                 }
             }
         }
