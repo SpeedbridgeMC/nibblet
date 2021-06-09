@@ -28,7 +28,7 @@ public final class NbtIntArray implements NbtElement, NbtIntArrayView {
         }
 
         public @NotNull NbtIntArray build() {
-            return new NbtIntArray(backingList);
+            return new NbtIntArray(new ArrayList<>(backingList));
         }
     }
 

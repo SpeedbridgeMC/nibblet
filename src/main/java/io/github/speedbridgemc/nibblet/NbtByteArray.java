@@ -28,7 +28,7 @@ public final class NbtByteArray implements NbtElement, NbtByteArrayView {
         }
 
         public @NotNull NbtByteArray build() {
-            return new NbtByteArray(backingList);
+            return new NbtByteArray(new ArrayList<>(backingList));
         }
     }
 

@@ -28,7 +28,7 @@ public final class NbtLongArray implements NbtElement, NbtLongArrayView {
         }
 
         public @NotNull NbtLongArray build() {
-            return new NbtLongArray(backingList);
+            return new NbtLongArray(new ArrayList<>(backingList));
         }
     }
 
